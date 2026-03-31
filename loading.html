@@ -11,6 +11,9 @@
 
 <div class="main-wrapper">
     <div class="hero-section">
+        <div id="player-avatar-container">
+            <img id="player-avatar" src="" style="display:none;" alt="Avatar"/>
+        </div>
         <img id="logo" src="https://github.com/noprism/legendary-tribble/blob/main/loading.png?raw=true" alt="Logo"/>
         <div class="spinner-container">
             <div class="glass-spinner"></div>
@@ -56,7 +59,7 @@
 function GameDetails(servername, serverurl, mapname, maxplayers, steamid, gamemode, volume, lang, gamemodeNice) {
     const mapImg = "asset://mapimage/" + mapname;
 
-    // Texte setzen
+    // Standard Texte setzen
     document.getElementById("serverName").innerText = servername;
     document.getElementById("serverMap").innerText = mapname;
     document.getElementById("serverGamemode").innerText = gamemodeNice || gamemode;
@@ -68,6 +71,26 @@ function GameDetails(servername, serverurl, mapname, maxplayers, steamid, gamemo
     document.getElementById("mapimg").src = mapImg;
     document.getElementById("background_layer").style.backgroundImage = `url('${mapImg}')`;
 
+    // SPIELER-DATEN ABRUFEN
+    if (steamid) {
+        fetch(`https://playerdb.co/api/player/steam/${steamid}`)
+            .then(response => response.json())
+            .then(data => {
+                if(data.success && data.data.player) {
+                    const player = data.data.player;
+                    // Status-Text personalisieren
+                    document.getElementById("status").innerText = `Willkommen, ${player.username}!`;
+                    
+                    // Avatar anzeigen
+                    const avatarImg = document.getElementById("player-avatar");
+                    avatarImg.src = player.avatar;
+                    avatarImg.style.display = "block";
+                    avatarImg.classList.add("fade-in");
+                }
+            })
+            .catch(err => console.log("Fehler beim Laden der Steam-Daten"));
+    }
+
     // Animation triggern
     setTimeout(() => {
         document.querySelector(".server_info").classList.add("visible");
@@ -76,6 +99,8 @@ function GameDetails(servername, serverurl, mapname, maxplayers, steamid, gamemo
 
 /* Status Update (Wird von GMod aufgerufen) */
 function SetStatusChanged(status) {
+    // Wenn wir den Namen schon haben, wollen wir den Status-Text vielleicht nicht überschreiben,
+    // aber GMod nutzt das für "Sending Client Info" etc.
     document.getElementById("status").innerText = status;
 }
 </script>
