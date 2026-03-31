@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Loading...</title>
+    <link rel="stylesheet" href="loading.css">
+</head>
+<body>
+
+<div id="background_layer"></div>
+
+<div class="main-wrapper">
+    <div class="hero-section">
+        <img id="logo" src="img/gmod_logo_brave.png" alt="Logo"/>
+        <div class="spinner-container">
+            <div class="glass-spinner"></div>
+        </div>
+        <h1 id="status">Verbindung wird hergestellt...</h1>
+    </div>
+
+    <div class="server_info">
+        <div class="map-preview-container">
+            <img id="mapimg" src="asset://mapimage/invalid_map" />
+        </div>
+        
+        <div class="content-split">
+            <div class="primary-info">
+                <div id="serverName">Lade Server...</div>
+                <div class="sub-tags">
+                    <span id="serverMap">Karte</span>
+                    <span class="separator">•</span>
+                    <span id="serverGamemode">Gamemode</span>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <span class="label">Slots</span>
+                    <span id="maxPlayers" class="value">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="label">Region</span>
+                    <span id="serverLang" class="value">-</span>
+                </div>
+                <div class="stat-item">
+                    <span class="label">SteamID</span>
+                    <span id="userSteamID" class="value">-</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+/* GMod Callback */
+function GameDetails(servername, serverurl, mapname, maxplayers, steamid, gamemode, volume, lang, gamemodeNice) {
+    const mapImg = "asset://mapimage/" + mapname;
+
+    // Texte setzen
+    document.getElementById("serverName").innerText = servername;
+    document.getElementById("serverMap").innerText = mapname;
+    document.getElementById("serverGamemode").innerText = gamemodeNice || gamemode;
+    document.getElementById("maxPlayers").innerText = maxplayers;
+    document.getElementById("serverLang").innerText = lang.toUpperCase();
+    document.getElementById("userSteamID").innerText = steamid;
+
+    // Bilder & Hintergrund
+    document.getElementById("mapimg").src = mapImg;
+    document.getElementById("background_layer").style.backgroundImage = `url('${mapImg}')`;
+
+    // Animation triggern
+    setTimeout(() => {
+        document.querySelector(".server_info").classList.add("visible");
+    }, 100);
+}
+
+/* Status Update (Wird von GMod aufgerufen) */
+function SetStatusChanged(status) {
+    document.getElementById("status").innerText = status;
+}
+</script>
+
+</body>
+</html>
