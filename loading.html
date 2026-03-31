@@ -99,7 +99,7 @@ function SetStatusChanged(status) {
     // If we didn't fetch a name yet, we use the default placeholder
     // Otherwise, we'll keep the greeting or append the status
     const statusEl = document.getElementById("status");
-    if(!statusEl.innerText.includes("Willkommen")) {
+    if(!statusEl.innerText.includes("Welcome")) {
         statusEl.innerText = status;
     }
 }
