@@ -11,14 +11,11 @@
 
 <div class="main-wrapper">
     <div class="hero-section">
-        <div id="player-avatar-container">
-            <img id="player-avatar" src="" style="display:none;" alt="Avatar"/>
-        </div>
         <img id="logo" src="https://github.com/noprism/legendary-tribble/blob/main/loading.png?raw=true" alt="Logo"/>
         <div class="spinner-container">
             <div class="glass-spinner"></div>
         </div>
-        <h1 id="status">Verbindung wird hergestellt...</h1>
+        <h1 id="status">Connecting.</h1>
     </div>
 
     <div class="server_info">
@@ -28,9 +25,9 @@
         
         <div class="content-split">
             <div class="primary-info">
-                <div id="serverName">Lade Server...</div>
+                <div id="serverName">Loading server...</div>
                 <div class="sub-tags">
-                    <span id="serverMap">Karte</span>
+                    <span id="serverMap">Map</span>
                     <span class="separator">•</span>
                     <span id="serverGamemode">Gamemode</span>
                 </div>
@@ -59,49 +56,52 @@
 function GameDetails(servername, serverurl, mapname, maxplayers, steamid, gamemode, volume, lang, gamemodeNice) {
     const mapImg = "asset://mapimage/" + mapname;
 
-    // Standard Texte setzen
+    // Setting text
     document.getElementById("serverName").innerText = servername;
     document.getElementById("serverMap").innerText = mapname;
     document.getElementById("serverGamemode").innerText = gamemodeNice || gamemode;
     document.getElementById("maxPlayers").innerText = maxplayers;
-    document.getElementById("serverLang").innerText = lang.toUpperCase();
+    document.getElementById("serverLang").innerText = (lang ? lang.toUpperCase() : "DE");
     document.getElementById("userSteamID").innerText = steamid;
 
-    // Bilder & Hintergrund
+    // Icons and Background
     document.getElementById("mapimg").src = mapImg;
     document.getElementById("background_layer").style.backgroundImage = `url('${mapImg}')`;
 
-    // SPIELER-DATEN ABRUFEN
-    if (steamid) {
+    // Fetching player data by SteamAPI
+    if (steamid && steamid !== "%steamid%") { // Check against placeholder
         fetch(`https://playerdb.co/api/player/steam/${steamid}`)
             .then(response => response.json())
             .then(data => {
                 if(data.success && data.data.player) {
                     const player = data.data.player;
-                    // Status-Text personalisieren
-                    document.getElementById("status").innerText = `Willkommen, ${player.username}!`;
+                    // Replacing user pfp
+                    const avatarUrl = player.avatar;
+                    const logoEl = document.getElementById("logo");
+                    logoEl.src = avatarUrl;
+                    logoEl.classList.add("avatar-style"); // Style for pfp
                     
-                    // Avatar anzeigen
-                    const avatarImg = document.getElementById("player-avatar");
-                    avatarImg.src = player.avatar;
-                    avatarImg.style.display = "block";
-                    avatarImg.classList.add("fade-in");
+                    // Personalizing status-text
+                    document.getElementById("status").innerText = `Welcome, ${player.username}!`;
                 }
             })
-            .catch(err => console.log("Fehler beim Laden der Steam-Daten"));
+            .catch(err => console.error("Error fetching data:", err));
     }
 
-    // Animation triggern
+    // Trigger animation
     setTimeout(() => {
         document.querySelector(".server_info").classList.add("visible");
     }, 100);
 }
 
-/* Status Update (Wird von GMod aufgerufen) */
+/* Status update (handled by GMod) */
 function SetStatusChanged(status) {
-    // Wenn wir den Namen schon haben, wollen wir den Status-Text vielleicht nicht überschreiben,
-    // aber GMod nutzt das für "Sending Client Info" etc.
-    document.getElementById("status").innerText = status;
+    // If we didn't fetch a name yet, we use the default placeholder
+    // Otherwise, we'll keep the greeting or append the status
+    const statusEl = document.getElementById("status");
+    if(!statusEl.innerText.includes("Willkommen")) {
+        statusEl.innerText = status;
+    }
 }
 </script>
 
