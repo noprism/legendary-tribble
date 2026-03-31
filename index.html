@@ -49,9 +49,9 @@
     document.getElementById("server").innerText = "Server: " + hostname;
 
     // 👉 OPTIONAL: Steam API (brauchst API Key)
-    const API_KEY = "DEIN_API_KEY_HIER";
+    const API_KEY = "3EABCBFA61D44CB29354BA0AEA4F797B";
 
-    if (steamid !== "Unbekannt" && API_KEY !== "DEIN_API_KEY_HIER") {
+    if (steamid !== "Unbekannt" && API_KEY !== "3EABCBFA61D44CB29354BA0AEA4F797B") {
         fetch(`https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/?key=${API_KEY}&steamids=${steamid}`)
             .then(res => res.json())
             .then(data => {
