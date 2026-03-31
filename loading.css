@@ -1,0 +1,163 @@
+/* Reset & Base */
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    font-family: 'SF Pro Display', system-ui, -apple-system, sans-serif;
+    color: #ffffff;
+    background-color: #000;
+}
+
+/* Dynamischer Hintergrund mit Blur */
+#background_layer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    transform: scale(1.1); /* Verhindert weiße Ränder beim Blur */
+    filter: blur(30px) brightness(0.5);
+    z-index: -1;
+    transition: background-image 1s ease-in-out;
+}
+
+.main-wrapper {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    padding: 60px 0;
+    box-sizing: border-box;
+}
+
+/* Hero Section */
+.hero-section {
+    text-align: center;
+}
+
+#logo {
+    width: 160px;
+    filter: drop-shadow(0 10px 20px rgba(0,0,0,0.5));
+    margin-bottom: 20px;
+}
+
+#status {
+    font-size: 1.2rem;
+    font-weight: 300;
+    letter-spacing: 1px;
+    opacity: 0.8;
+    margin-top: 15px;
+}
+
+/* Glass Spinner */
+.glass-spinner {
+    width: 30px;
+    height: 30px;
+    border: 3px solid rgba(255, 255, 255, 0.1);
+    border-top: 3px solid rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    animation: spin 1s cubic-bezier(0.5, 0.1, 0.4, 0.9) infinite;
+    margin: 0 auto;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Zentrale Glass-Card */
+.server_info {
+    width: 80%;
+    max-width: 900px;
+    background: rgba(255, 255, 255, 0.1); /* Sehr transparentes Weiß */
+    backdrop-filter: blur(25px) saturate(180%);
+    -webkit-backdrop-filter: blur(25px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 24px;
+    display: flex;
+    padding: 24px;
+    gap: 24px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+    
+    /* Animation beim Laden */
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.server_info.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Map Image Styling */
+.map-preview-container {
+    flex-shrink: 0;
+}
+
+#mapimg {
+    width: 180px;
+    height: 120px;
+    border-radius: 16px;
+    object-fit: cover;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Text Content */
+.content-split {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+#serverName {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.sub-tags {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.6);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.separator {
+    margin: 0 8px;
+    color: rgba(255, 255, 255, 0.3);
+}
+
+/* Stats Grid */
+.stats-grid {
+    display: flex;
+    gap: 40px;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.label {
+    font-size: 10px;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.4);
+    margin-bottom: 2px;
+}
+
+.value {
+    font-size: 16px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.9);
+}
