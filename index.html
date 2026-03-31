@@ -1,73 +1,118 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <title>Loading...</title>
-    <style>
-        body {
-            margin: 0;
-            background: #0f172a;
-            color: white;
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            text-align: center;
-        }
-        .card {
-            background: #1e293b;
-            padding: 30px;
-            border-radius: 16px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
-        }
-        img {
-            border-radius: 50%;
-            margin-bottom: 15px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Loading...</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #0f172a, #1e293b);
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      text-align: center;
+      background: rgba(255,255,255,0.05);
+      padding: 30px;
+      border-radius: 16px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+    }
+
+    img {
+      border-radius: 50%;
+      width: 120px;
+      height: 120px;
+      margin-bottom: 15px;
+    }
+
+    h1 {
+      margin: 10px 0;
+      font-size: 24px;
+    }
+
+    .info {
+      opacity: 0.8;
+      font-size: 14px;
+    }
+
+    .progress {
+      margin-top: 20px;
+      height: 10px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 5px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: #38bdf8;
+      animation: load 10s linear forwards;
+    }
+
+    @keyframes load {
+      from { width: 0%; }
+      to { width: 100%; }
+    }
+  </style>
 </head>
 <body>
+  <div class="container">
+    <img id="avatar" src="" alt="Avatar">
+    <h1 id="welcome">Lade...</h1>
+    <div class="info" id="serverInfo"></div>
 
-<div class="card">
-    <img id="avatar" src="" width="100" height="100">
-    <h1 id="name">Lade...</h1>
-    <p id="steamid"></p>
-    <p id="map"></p>
-    <p id="server"></p>
-</div>
+    <div class="progress">
+      <div class="progress-bar"></div>
+    </div>
+  </div>
 
-<script>
+  <script>
     const params = new URLSearchParams(window.location.search);
 
-    const steamid = params.get("steamid") || "Unbekannt";
-    const map = params.get("map") || "Unbekannt";
-    const hostname = params.get("hostname") || "Unbekannt";
+    const steamid = params.get("steamid") || params.get("steamid64");
+    const map = params.get("map");
+    const hostname = params.get("hostname");
+    const gamemode = params.get("gamemode");
 
-    document.getElementById("steamid").innerText = "SteamID: " + steamid;
-    document.getElementById("map").innerText = "Map: " + map;
-    document.getElementById("server").innerText = "Server: " + hostname;
+    const welcomeEl = document.getElementById("welcome");
+    const avatarEl = document.getElementById("avatar");
+    const serverInfoEl = document.getElementById("serverInfo");
 
-    // 👉 OPTIONAL: Steam API (brauchst API Key)
-    const API_KEY = "3EABCBFA61D44CB29354BA0AEA4F797B";
+    serverInfoEl.innerHTML = `
+      Server: ${hostname || "Unbekannt"}<br>
+      Map: ${map || "Unbekannt"}<br>
+      Modus: ${gamemode || "Unbekannt"}
+    `;
 
-    if (steamid !== "Unbekannt" && API_KEY !== "3EABCBFA61D44CB29354BA0AEA4F797B") {
-        fetch(`https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/?key=${API_KEY}&steamids=${steamid}`)
-            .then(res => res.json())
-            .then(data => {
-                const player = data.response.players[0];
-                if (player) {
-                    document.getElementById("name").innerText = "Willkommen, " + player.personaname;
-                    document.getElementById("avatar").src = player.avatarfull;
-                }
-            })
-            .catch(() => {
-                document.getElementById("name").innerText = "Willkommen!";
-            });
+    if (steamid) {
+      const apiKey = "3EABCBFA61D44CB29354BA0AEA4F797B"; // <-- HIER EINTRAGEN
+
+      fetch(`https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/?key=${apiKey}&steamids=${steamid}`)
+        .then(res => res.json())
+        .then(data => {
+          const player = data.response.players[0];
+
+          if (player) {
+            welcomeEl.textContent = `Willkommen, ${player.personaname}`;
+            avatarEl.src = player.avatarfull;
+          } else {
+            welcomeEl.textContent = "Willkommen Spieler";
+          }
+        })
+        .catch(() => {
+          welcomeEl.textContent = "Willkommen Spieler";
+        });
     } else {
-        document.getElementById("name").innerText = "Willkommen!";
+      welcomeEl.textContent = "Willkommen Spieler";
     }
-</script>
-
+  </script>
 </body>
 </html>
