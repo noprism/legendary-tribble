@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Loading...</title>
+    <style>
+        body {
+            margin: 0;
+            background: #0f172a;
+            color: white;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+        }
+        .card {
+            background: #1e293b;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+        img {
+            border-radius: 50%;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <img id="avatar" src="" width="100" height="100">
+    <h1 id="name">Lade...</h1>
+    <p id="steamid"></p>
+    <p id="map"></p>
+    <p id="server"></p>
+</div>
+
+<script>
+    const params = new URLSearchParams(window.location.search);
+
+    const steamid = params.get("steamid") || "Unbekannt";
+    const map = params.get("map") || "Unbekannt";
+    const hostname = params.get("hostname") || "Unbekannt";
+
+    document.getElementById("steamid").innerText = "SteamID: " + steamid;
+    document.getElementById("map").innerText = "Map: " + map;
+    document.getElementById("server").innerText = "Server: " + hostname;
+
+    // 👉 OPTIONAL: Steam API (brauchst API Key)
+    const API_KEY = "DEIN_API_KEY_HIER";
+
+    if (steamid !== "Unbekannt" && API_KEY !== "DEIN_API_KEY_HIER") {
+        fetch(`https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/?key=${API_KEY}&steamids=${steamid}`)
+            .then(res => res.json())
+            .then(data => {
+                const player = data.response.players[0];
+                if (player) {
+                    document.getElementById("name").innerText = "Willkommen, " + player.personaname;
+                    document.getElementById("avatar").src = player.avatarfull;
+                }
+            })
+            .catch(() => {
+                document.getElementById("name").innerText = "Willkommen!";
+            });
+    } else {
+        document.getElementById("name").innerText = "Willkommen!";
+    }
+</script>
+
+</body>
+</html>
