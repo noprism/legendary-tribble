@@ -1,141 +1,142 @@
-/* Grundlegendes Styling */
-* {
-    box-sizing: border-box;
+/* Grundlegendes Design */
+body {
     margin: 0;
     padding: 0;
-}
-
-body {
-    background-color: #111;
-    background-size: cover;
-    background-position: center;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    color: white;
-    height: 100vh;
-    width: 100vw;
-    overflow: hidden;
+    background-color: #121212;
+    color: #eeeeee;
     display: flex;
     justify-content: center;
     align-items: center;
+    height: 100vh;
+    overflow: hidden;
 }
 
-#background-overlay {
-    position: absolute;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.7);
-    backdrop-filter: blur(5px);
-    z-index: -1;
-}
-
-.main-container {
+#wrapper {
     width: 90%;
-    max-width: 1200px;
+    max-width: 1000px;
     display: flex;
     flex-direction: column;
     gap: 20px;
 }
 
-/* Gemeinsame Box-Stile basierend auf Skizze */
-.content-box {
-    background: rgba(40, 40, 40, 0.8);
-    border: 2px solid #555;
-    border-radius: 4px;
-    padding: 20px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-}
-
-/* Obere Sektion Layout */
-.top-row {
+/* Karten-Layout für Info-Bereiche */
+.info-row {
     display: flex;
     gap: 20px;
 }
 
-.server-info-wrapper, .player-info-wrapper {
+.card {
     flex: 1;
+    background-color: #1e1e1e;
+    border: 1px solid #333;
+    border-radius: 5px;
+    padding: 20px;
     display: flex;
     align-items: center;
-    gap: 25px;
+    gap: 20px;
 }
 
-.icon-container img {
-    width: 120px;
-    height: 120px;
+.card-icon {
+    width: 80px;
+    height: 80px;
+    background-color: #333;
+    border: 1px solid #444;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+.card-icon img {
+    width: 100%;
+    height: 100%;
     object-fit: cover;
-    border: 2px solid #777;
-    background: #222;
 }
 
-.details h3 {
-    margin-bottom: 10px;
-    font-size: 1.2rem;
-    color: #00a2ff;
+.card-content h2 {
+    color: #0099ff;
+    font-size: 16px;
+    margin: 0 0 10px 0;
     text-transform: uppercase;
 }
 
-.details ul {
+.card-content ul {
     list-style: none;
+    padding: 0;
+    margin: 0;
+    font-size: 14px;
 }
 
-.details li {
-    font-size: 1rem;
+.card-content li {
     margin-bottom: 5px;
-    color: #ddd;
 }
 
-.details span {
-    color: #fff;
+.label {
     font-weight: bold;
 }
 
-/* Ladebalken Styling */
-.progress-wrapper {
+/* Ladebalken-Bereich */
+.loading-section {
+    background-color: #1e1e1e;
+    border: 1px solid #333;
+    border-radius: 5px;
+    padding: 20px;
     text-align: center;
 }
 
-.progress-label {
+.section-title {
     font-weight: bold;
-    margin-bottom: 10px;
     text-transform: uppercase;
+    margin-bottom: 15px;
+    display: block;
 }
 
 .progress-container {
     width: 100%;
-    height: 25px;
-    background: #222;
-    border: 1px solid #444;
+    height: 30px;
+    background-color: #111;
     border-radius: 15px;
+    border: 1px solid #444;
     overflow: hidden;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
 }
 
-#progress-fill {
-    height: 100%;
+#progress-bar {
     width: 0%;
-    background: linear-gradient(90deg, #0072ff, #00c6ff);
+    height: 100%;
+    background: linear-gradient(90deg, #0066cc, #0099ff);
     transition: width 0.3s ease;
 }
 
 #status-text {
-    font-size: 0.85rem;
+    font-size: 13px;
     color: #888;
 }
 
-/* Splash Text */
-.splash-wrapper {
+/* Splash Text Box */
+.splash-box {
+    background-color: #1e1e1e;
+    border: 1px solid #333;
+    border-radius: 5px;
+    padding: 15px;
     text-align: center;
-    font-size: 1.3rem;
-    font-style: italic;
-    color: #ffcc00;
-    min-height: 60px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
 }
 
-/* Memorial */
-.memorial-wrapper {
+#splash-text {
+    color: #ffcc00;
+    font-style: italic;
+    font-size: 18px;
+    font-weight: 500;
+}
+
+/* Footer / Gedenknachricht */
+.footer {
+    background-color: #1e1e1e;
+    border: 1px solid #333;
+    border-radius: 5px;
+    padding: 15px;
     text-align: center;
-    font-size: 0.9rem;
-    color: #777;
-    border-color: #333;
+    color: #666;
+    font-size: 12px;
 }

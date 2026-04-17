@@ -1,134 +1,135 @@
 <!DOCTYPE html>
-<html lang="de">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Garry's Mod Loading Screen</title>
+    <title>GMod Loading Screen</title>
     <link rel="stylesheet" type="text/css" href="loading.css" />
 </head>
 <body>
 
-    <div id="background-overlay"></div>
-
-    <div class="main-container">
-        <div class="top-row">
-            
-            <div class="content-box server-info-wrapper">
-                <div class="icon-container">
-                    <img id="mapimg" src="asset://mapimage/invalid_map" alt="Map Icon" />
+    <div id="wrapper">
+        
+        <div class="info-row">
+            <div class="card">
+                <div class="card-icon">
+                    <img id="map-icon" src="asset://mapimage/invalid_map" alt="Map">
                 </div>
-                <div class="details">
-                    <h3>Server Informationen:</h3>
+                <div class="card-content">
+                    <h2>Server Informationen:</h2>
                     <ul>
-                        <li><strong>- Server Name:</strong> <span id="serverName">Lade...</span></li>
-                        <li><strong>- Map Name:</strong> <span id="serverMap">Lade...</span></li>
-                        <li><strong>- Gamemode:</strong> <span id="serverGamemode">Lade...</span></li>
-                        <li><strong>- Maximale Slots:</strong> <span id="serverSlots">Lade...</span></li>
+                        <li><span class="label">- Server Name:</span> <span id="sn">Lade...</span></li>
+                        <li><span class="label">- Map Name:</span> <span id="mn">Lade...</span></li>
+                        <li><span class="label">- Gamemode:</span> <span id="gm">Lade...</span></li>
+                        <li><span class="label">- Maximale Slots:</span> <span id="ms">Lade...</span></li>
                     </ul>
                 </div>
             </div>
 
-            <div class="content-box player-info-wrapper">
-                <div class="icon-container">
-                    <img id="playerAvatar" src="https://via.placeholder.com/128" alt="Spieler Profilbild" />
+            <div class="card">
+                <div class="card-icon">
+                    <img id="player-avatar" src="https://via.placeholder.com/80" alt="Avatar">
                 </div>
-                <div class="details">
-                    <h3>Informationen über den Spieler:</h3>
+                <div class="card-content">
+                    <h2>Informationen über den Spieler:</h2>
                     <ul>
-                        <li><strong>- Nutzername:</strong> <span id="playerName">Lade...</span></li>
+                        <li><span class="label">- Nutzername:</span> <span id="un">Lade...</span></li>
                     </ul>
                 </div>
             </div>
-
         </div>
 
-        <div class="content-box progress-wrapper">
-            <div class="progress-label">Server Ladebalken</div>
+        <div class="loading-section">
+            <span class="section-title">Server Ladebalken</span>
             <div class="progress-container">
-                <div id="progress-fill"></div>
+                <div id="progress-bar"></div>
             </div>
             <div id="status-text">Initialisiere Verbindung...</div>
         </div>
 
-        <div class="content-box splash-wrapper">
-            <div id="splash-text">Lade lustige Aussagen...</div>
+        <div class="splash-box">
+            <div id="splash-text">Warte auf die Freigabe vom G-Man...</div>
         </div>
 
-        <div class="content-box memorial-wrapper">
+        <div class="footer">
             Gedenkensnachricht an Viktor Antonov, dem Art Director für die Half-Life 2 Reihe
         </div>
+
     </div>
 
     <script type="text/javascript">
-        // Splash Texte Rotation
-        const splashTexts = [
-            "Justiere die Gravity Gun...",
-            "Suche nach fehlenden Texturen (ERROR)...",
-            "Spawne viel zu viele Melonen...",
-            "Prop-Hunting in Progress...",
-            "Verstecke die Physics-Engine...",
-            "Warte auf die Freigabe vom G-Man..."
+        // --- Splash Text Logik ---
+        const quotes = [
+            "Warte auf die Freigabe vom G-Man...",
+            "Berechne die Flugbahn einer geworfenen Toilette...",
+            "Verschütte Kaffee auf die Server-Elektronik...",
+            "Suche nach dem Sinn von Garry's Mod...",
+            "Poliere die Brecheisen...",
+            "Ignoriere die Physik-Gesetze...",
+            "Baue eine unnötig komplizierte Maschine..."
         ];
 
-        let currentSplash = 0;
-        function rotateSplash() {
-            const el = document.getElementById("splash-text");
-            el.innerText = splashTexts[currentSplash];
-            currentSplash = (currentSplash + 1) % splashTexts.length;
+        let quoteIndex = 0;
+        function rotateQuotes() {
+            quoteIndex = (quoteIndex + 1) % quotes.length;
+            document.getElementById('splash-text').innerText = quotes[quoteIndex];
         }
-        setInterval(rotateSplash, 4000);
-        rotateSplash();
+        setInterval(rotateQuotes, 5000);
 
-        // PlayerDB Fetching (Nutzt SteamID aus URL oder GameDetails)
-        function fetchPlayerInfo(steamid) {
-            if (!steamid || steamid === "%s") return;
+        // --- GMod Variablen & PlayerDB ---
+        function GameDetails(servername, serverurl, mapname, maxplayers, steamid, gamemode, volume, lang, gamemodeNice) {
+            document.getElementById('sn').innerText = servername;
+            document.getElementById('mn').innerText = mapname;
+            document.getElementById('gm').innerText = gamemodeNice;
+            document.getElementById('ms').innerText = maxplayers;
             
+            // Map Icon setzen
+            document.getElementById('map-icon').src = "asset://mapimage/" + mapname;
+
+            // PlayerDB API Abfrage für Spielerdaten
             fetch(`https://playerdb.co/api/player/steam/${steamid}`)
-                .then(res => res.json())
+                .then(response => response.json())
                 .then(data => {
-                    if (data.success && data.data.player) {
-                        document.getElementById("playerName").innerText = data.data.player.username;
-                        document.getElementById("playerAvatar").src = data.data.player.avatar;
+                    if (data.success) {
+                        document.getElementById('un').innerText = data.data.player.username;
+                        document.getElementById('player-avatar').src = data.data.player.avatar;
+                    } else {
+                        document.getElementById('un').innerText = steamid; // Fallback
                     }
-                }).catch(err => console.log("PlayerDB Fehler: ", err));
+                })
+                .catch(err => {
+                    console.error("PlayerDB Error:", err);
+                    document.getElementById('un').innerText = "Unbekannt";
+                });
         }
 
-        // Native GMod Funktion
-        function GameDetails( servername, serverurl, mapname, maxplayers, steamid, gamemode, volume, lang, gamemodeNice ) {
-            document.getElementById("serverName").innerText = servername;
-            document.getElementById("serverMap").innerText = mapname;
-            document.getElementById("serverGamemode").innerText = gamemodeNice;
-            document.getElementById("serverSlots").innerText = maxplayers;
-            
-            // Map Bild setzen
-            var mapImg = "asset://mapimage/" + mapname;
-            document.getElementById("mapimg").src = mapImg;
-            document.body.style.backgroundImage = "url('" + mapImg + "')";
-            
-            fetchPlayerInfo(steamid);
-        }
-
-        // URL Parameter Support (Falls der Server diese direkt mitsendet)
-        window.onload = function() {
-            const params = new URLSearchParams(window.location.search);
-            if (params.has('steamid')) fetchPlayerInfo(params.get('steamid'));
-            if (params.has('mapname')) {
-                document.getElementById("serverMap").innerText = params.get('mapname');
-                document.getElementById("mapimg").src = "asset://mapimage/" + params.get('mapname');
-            }
-        };
-
-        // Ladebalken Logik
+        // --- Ladebalken Logik ---
         let totalFiles = 0;
-        function SetFilesTotal(total) { totalFiles = total; }
+        let filesNeeded = 0;
+
+        function SetFilesTotal(total) {
+            totalFiles = total;
+            updateProgressBar();
+        }
+
         function SetFilesNeeded(needed) {
+            filesNeeded = needed;
+            updateProgressBar();
+        }
+
+        function updateProgressBar() {
             if (totalFiles > 0) {
-                let percent = ((totalFiles - needed) / totalFiles) * 100;
-                document.getElementById("progress-fill").style.width = percent + "%";
+                let progress = ((totalFiles - filesNeeded) / totalFiles) * 100;
+                document.getElementById('progress-bar').style.width = progress + "%";
             }
         }
-        function SetStatusChanged(status) { document.getElementById("status-text").innerText = status; }
-        function DownloadingFile(file) { document.getElementById("status-text").innerText = "Lade: " + file; }
 
+        function SetStatusChanged(status) {
+            document.getElementById('status-text').innerText = status;
+        }
+
+        function DownloadingFile(file) {
+            document.getElementById('status-text').innerText = "Downloade: " + file;
+        }
     </script>
+
 </body>
 </html>
