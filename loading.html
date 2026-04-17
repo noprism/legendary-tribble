@@ -2,108 +2,143 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <title>Loading...</title>
-    <link rel="stylesheet" href="loading.css">
+    <title>GMod Loading Screen</title>
+    <link rel="stylesheet" type="text/css" href="loading.css" />
 </head>
 <body>
 
-<div id="background_layer"></div>
+    <div id="background-blur"></div>
 
-<div class="main-wrapper">
-    <div class="hero-section">
-        <img id="logo" src="https://github.com/noprism/legendary-tribble/blob/main/loading.png?raw=true" alt="Logo"/>
-        <div class="spinner-container">
-            <div class="glass-spinner"></div>
+    <div class="layout-wrapper">
+        <div class="main-panel">
+            <div class="content-row">
+                
+                <div class="section server-section">
+                    <img id="mapIcon" src="asset://mapimage/invalid_map" alt="Map" />
+                    <div class="info-block">
+                        <h3>Server Informationen:</h3>
+                        <ul>
+                            <li id="serverName">Name: Lade...</li>
+                            <li id="serverUrl">URL: Lade...</li>
+                            <li id="mapName">Map: Lade...</li>
+                            <li id="maxPlayers">Slots: Lade...</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="divider"></div>
+
+                <div class="section player-section">
+                    <img id="playerAvatar" src="https://via.placeholder.com/128?text=?" alt="Avatar" />
+                    <div class="info-block">
+                        <h3>Informationen über den Spieler:</h3>
+                        <ul>
+                            <li id="playerName">Nutzername: Lade...</li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            <div id="progressText">Lade Spieldateien...</div>
         </div>
-        <h1 id="status">Connecting.</h1>
+
+        <div class="splash-box" id="splashText">
+            Bereite alles vor...
+        </div>
+
+        <div class="memorial-box">
+            In Gedenken an Viktor Antonov, dem Art Director für die Half-Life 2 Reihe
+        </div>
     </div>
 
-    <div class="server_info">
-        <div class="map-preview-container">
-            <img id="mapimg" src="asset://mapimage/invalid_map" />
-        </div>
+    <script type="text/javascript">
+        // Splash Text Rotation
+        const splashTexts = [
+            "Bereinige Blutflecken",
+            "Lade noch mehr Ladebildschirme herunter...",
+            "Dividiere durch Null...",
+            "Befülle die Badewannen mit Melonen...",
+            "Schmiere die Gravity Gun...",
+            "Warte auf den G-Man..."
+			"Verstecke Patronenhülsen..."
+        ];
         
-        <div class="content-split">
-            <div class="primary-info">
-                <div id="serverName">Loading server...</div>
-                <div class="sub-tags">
-                    <span id="serverMap">Map</span>
-                    <span class="separator">•</span>
-                    <span id="serverGamemode">Gamemode</span>
-                </div>
-            </div>
+        let splashIndex = 0;
+        setInterval(() => {
+            splashIndex = (splashIndex + 1) % splashTexts.length;
+            const splashEl = document.getElementById("splashText");
+            splashEl.style.opacity = 0; // Fade out
+            setTimeout(() => {
+                splashEl.innerText = splashTexts[splashIndex];
+                splashEl.style.opacity = 1; // Fade in
+            }, 500);
+        }, 4000);
 
-            <div class="stats-grid">
-                <div class="stat-item">
-                    <span class="label">Slots</span>
-                    <span id="maxPlayers" class="value">0</span>
-                </div>
-                <div class="stat-item">
-                    <span class="label">Region</span>
-                    <span id="serverLang" class="value">-</span>
-                </div>
-                <div class="stat-item">
-                    <span class="label">SteamID</span>
-                    <span id="userSteamID" class="value">-</span>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+        // GMod Hook: Initialisiert Server- und Spielerdaten
+        function GameDetails( servername, serverurl, mapname, maxplayers, steamid, gamemode, volume, lang, gamemodeNice ) {
+            // Server Infos setzen
+            document.getElementById("serverName").innerText = "- Name: " + servername;
+            document.getElementById("serverUrl").innerText = "- URL: " + (serverurl ? serverurl : "Nicht verfügbar");
+            document.getElementById("mapName").innerText = "- Map: " + mapname;
+            document.getElementById("maxPlayers").innerText = "- Maximale Spieler: " + maxplayers;
+            
+            // Map Bilder
+            const mapImg = "asset://mapimage/" + mapname;
+            document.getElementById("mapIcon").src = mapImg;
+            document.body.style.backgroundImage = "url('" + mapImg + "')";
 
-<script>
-/* GMod Callback */
-function GameDetails(servername, serverurl, mapname, maxplayers, steamid, gamemode, volume, lang, gamemodeNice) {
-    const mapImg = "asset://mapimage/" + mapname;
+            // Spieler Infos via PlayerDB abfragen
+            if (steamid) {
+                fetch(`https://playerdb.co/api/player/steam/${steamid}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.code === "player_found") {
+                            const player = data.data.player;
+                            document.getElementById("playerName").innerText = "- Nutzername: " + player.username;
+                            document.getElementById("playerAvatar").src = player.avatar;
+                        } else {
+                            document.getElementById("playerName").innerText = "- Nutzername: Unbekannt";
+                        }
+                    })
+                    .catch(err => {
+                        console.error("PlayerDB API Fehler:", err);
+                        document.getElementById("playerName").innerText = "- Nutzername: Fehler beim Laden";
+                    });
+            }
+        }
 
-    // Setting text
-    document.getElementById("serverName").innerText = servername;
-    document.getElementById("serverMap").innerText = mapname;
-    document.getElementById("serverGamemode").innerText = gamemodeNice || gamemode;
-    document.getElementById("maxPlayers").innerText = maxplayers;
-    document.getElementById("serverLang").innerText = (lang ? lang.toUpperCase() : "DE");
-    document.getElementById("userSteamID").innerText = steamid;
+        // Ladebalken Logik (GMod native Aufrufe)
+        let filesTotal = 0;
+        let filesNeeded = 0;
 
-    // Icons and Background
-    document.getElementById("mapimg").src = mapImg;
-    document.getElementById("background_layer").style.backgroundImage = `url('${mapImg}')`;
+        function SetFilesTotal( total ) {
+            filesTotal = total;
+        }
 
-    // Fetching player data by SteamAPI
-    if (steamid && steamid !== "%steamid%") { // Check against placeholder
-        fetch(`https://playerdb.co/api/player/steam/${steamid}`)
-            .then(response => response.json())
-            .then(data => {
-                if(data.success && data.data.player) {
-                    const player = data.data.player;
-                    // Replacing user pfp
-                    const avatarUrl = player.avatar;
-                    const logoEl = document.getElementById("logo");
-                    logoEl.src = avatarUrl;
-                    logoEl.classList.add("avatar-style"); // Style for pfp
-                    
-                    // Personalizing status-text
-                    document.getElementById("status").innerText = `Welcome, ${player.username}!`;
-                }
-            })
-            .catch(err => console.error("Error fetching data:", err));
-    }
+        function SetFilesNeeded( needed ) {
+            filesNeeded = needed;
+            UpdateProgress();
+        }
 
-    // Trigger animation
-    setTimeout(() => {
-        document.querySelector(".server_info").classList.add("visible");
-    }, 100);
-}
+        function DownloadingFile( fileName ) {
+            document.getElementById("progressText").innerText = "Lade Datei: " + fileName;
+        }
 
-/* Status update (handled by GMod) */
-function SetStatusChanged(status) {
-    // If we didn't fetch a name yet, we use the default placeholder
-    // Otherwise, we'll keep the greeting or append the status
-    const statusEl = document.getElementById("status");
-    if(!statusEl.innerText.includes("Welcome")) {
-        statusEl.innerText = status;
-    }
-}
-</script>
+        function SetStatusChanged( status ) {
+            document.getElementById("progressText").innerText = status;
+        }
+
+        function UpdateProgress() {
+            if (filesTotal > 0) {
+                let percentage = ((filesTotal - filesNeeded) / filesTotal) * 100;
+                document.getElementById("progressBar").style.width = percentage + "%";
+            }
+        }
+    </script>
 
 </body>
 </html>
