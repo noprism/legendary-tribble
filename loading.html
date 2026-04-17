@@ -80,34 +80,25 @@
             document.getElementById('mn').innerText = mapname;
             document.getElementById('gm').innerText = gamemodeNice;
             document.getElementById('ms').innerText = maxplayers;
-            
-            // Map Icon setzen
             document.getElementById('map-icon').src = "asset://mapimage/" + mapname;
 
-            // PlayerDB API Abfrage für Spielerdaten
             fetch(`https://playerdb.co/api/player/steam/${steamid}`)
                 .then(response => response.json())
                 .then(data => {
-                    if (data.success) {
+                    if (data && data.success) {
                         document.getElementById('un').innerText = data.data.player.username;
                         document.getElementById('player-avatar').src = data.data.player.avatar;
-                    } else {
-                        document.getElementById('un').innerText = steamid; // Fallback
                     }
-                })
-                .catch(err => {
-                    console.error("PlayerDB Error:", err);
-                    document.getElementById('un').innerText = "Unbekannt";
-                });
+                }).catch(e => { document.getElementById('un').innerText = "Spieler"; });
         }
 
-        // --- Ladebalken Logik ---
+        // --- Verbesserte Ladebalken Logik ---
         let totalFiles = 0;
         let filesNeeded = 0;
+        let currentProgress = 0;
 
         function SetFilesTotal(total) {
             totalFiles = total;
-            updateProgressBar();
         }
 
         function SetFilesNeeded(needed) {
@@ -117,17 +108,38 @@
 
         function updateProgressBar() {
             if (totalFiles > 0) {
-                let progress = ((totalFiles - filesNeeded) / totalFiles) * 100;
-                document.getElementById('progress-bar').style.width = progress + "%";
+                // Berechne Download-Fortschritt (geht bis max 90%, damit Platz für "Sending Client Info" bleibt)
+                let downloadProgress = ((totalFiles - filesNeeded) / totalFiles) * 90;
+                if (downloadProgress > currentProgress) {
+                    currentProgress = downloadProgress;
+                    draw();
+                }
             }
         }
 
         function SetStatusChanged(status) {
             document.getElementById('status-text').innerText = status;
+            let s = status.toLowerCase();
+
+            // Manuelle Sprünge für Phasen, in denen keine Files mehr gezählt werden
+            if (s.includes("workshop complete")) {
+                currentProgress = 80;
+            } else if (s.includes("mounting addons")) {
+                currentProgress = 85;
+            } else if (s.includes("sending client info")) {
+                currentProgress = 95;
+            } else if (s.includes("starting lua")) {
+                currentProgress = 100;
+            }
+            draw();
         }
 
         function DownloadingFile(file) {
             document.getElementById('status-text').innerText = "Downloade: " + file;
+        }
+
+        function draw() {
+            document.getElementById('progress-bar').style.width = currentProgress + "%";
         }
     </script>
 

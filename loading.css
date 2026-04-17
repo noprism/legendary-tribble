@@ -1,4 +1,3 @@
-/* Grundlegendes Design */
 body {
     margin: 0;
     padding: 0;
@@ -20,7 +19,6 @@ body {
     gap: 20px;
 }
 
-/* Karten-Layout für Info-Bereiche */
 .info-row {
     display: flex;
     gap: 20px;
@@ -35,6 +33,7 @@ body {
     display: flex;
     align-items: center;
     gap: 20px;
+    min-height: 120px;
 }
 
 .card-icon {
@@ -76,7 +75,6 @@ body {
     font-weight: bold;
 }
 
-/* Ladebalken-Bereich */
 .loading-section {
     background-color: #1e1e1e;
     border: 1px solid #333;
@@ -106,7 +104,8 @@ body {
     width: 0%;
     height: 100%;
     background: linear-gradient(90deg, #0066cc, #0099ff);
-    transition: width 0.3s ease;
+    /* Transition auf 0.5s erhöht für weichere Bewegungen bei Status-Sprüngen */
+    transition: width 0.5s ease-out;
 }
 
 #status-text {
@@ -114,7 +113,6 @@ body {
     color: #888;
 }
 
-/* Splash Text Box */
 .splash-box {
     background-color: #1e1e1e;
     border: 1px solid #333;
@@ -130,7 +128,6 @@ body {
     font-weight: 500;
 }
 
-/* Footer / Gedenknachricht */
 .footer {
     background-color: #1e1e1e;
     border: 1px solid #333;
