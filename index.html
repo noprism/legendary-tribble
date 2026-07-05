@@ -94,17 +94,14 @@
 
     </div>
 
-    <audio id="loading-music"></audio>
+    <audio id="loading-music" autoplay></audio>
 
     <script>
-        // Gmod Parameter abgreifen
         const urlParams = new URLSearchParams(window.location.search);
         const mapName = urlParams.get('mapname');
         if (mapName) document.getElementById('map-name').innerText = mapName;
 
-        // ----------------------------------------------------
-        // FAKTENBASIERTER TRAIN POOL (STRICT WIKI DATA)
-        // ----------------------------------------------------
+        // FAKTENBASIERTER TRAIN POOL
         const trainPool = [
             {
                 title: "Baureihe Ezh3 (81-710)",
@@ -168,7 +165,6 @@
             }
         ];
 
-        // Zufälliges Modell auswürfeln
         const randomSelection = trainPool[Math.floor(Math.random() * trainPool.length)];
         document.getElementById("train-title").innerText = randomSelection.title;
         document.getElementById("train-state").innerText = randomSelection.state;
@@ -196,7 +192,7 @@
         });
 
         // ----------------------------------------------------
-        // KORRIGIERTER AUDIO PLAYER (Pfade + robustes Playback)
+        // BEHOBEN: ENTKOPPELTES AUDIO (Sicherer Playback)
         // ----------------------------------------------------
         const playlist = [
             { path: "music/kate.mp3", title: "Kate", artist: "Solar Fields" },
@@ -207,32 +203,7 @@
 
         const audio = document.getElementById("loading-music");
         let lastTrackIndex = -1;
-        let audioCtx, analyser, source, bufferLength, dataArray;
-        let isAudioSetup = false;
-
-        function initAudioReactor() {
-            if (isAudioSetup) return;
-            try {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                analyser = audioCtx.createAnalyser();
-                source = audioCtx.createMediaElementSource(audio);
-                source.connect(analyser);
-                analyser.connect(audioCtx.destination);
-                analyser.fftSize = 64;
-                bufferLength = analyser.frequencyBinCount;
-                dataArray = new Uint8Array(bufferLength);
-                isAudioSetup = true;
-                
-                // Falls der Context wegen fehlender Interaktion auf "suspended" steht
-                if (audioCtx.state === 'suspended') {
-                    console.log("AudioContext is suspended. Warten auf Benutzerklick...");
-                } else {
-                    renderAudioReaction();
-                }
-            } catch(e) { 
-                console.log("Audio API konnte nicht aufgebaut werden.", e); 
-            }
-        }
+        let fakeVisData = new Array(32).fill(0); // Datenspeicher für simulierten Equalizer
 
         function playRandomSong() {
             if (playlist.length === 0) return;
@@ -246,7 +217,6 @@
             lastTrackIndex = newIndex;
             const currentSong = playlist[newIndex];
             
-            // DOM Update VOR dem Abspielen forcieren, um "Warte..." sicher zu entfernen
             document.getElementById("track-title").innerText = currentSong.title;
             document.getElementById("track-artist").innerText = currentSong.artist;
             document.getElementById("track-progress").style.width = "0%";
@@ -254,53 +224,47 @@
             audio.src = currentSong.path;
             audio.volume = 0.15; 
             
-            audio.play().then(() => { 
-                initAudioReactor(); 
-            }).catch(e => {
-                console.log("Browser hat Autoplay blockiert. Ein Klick auf die Seite startet die Musik.");
+            audio.play().catch(e => {
+                console.log("Autoplay blockiert. Der Gmod Client startet den Stream automatisch.");
             });
         }
 
-        function renderAudioReaction() {
-            if (!isAudioSetup || audioCtx.state === 'suspended') return;
-            requestAnimationFrame(renderAudioReaction);
+        // Der simulierte Visualizer greift nicht ins Audio ein!
+        function renderFakeReaction() {
+            requestAnimationFrame(renderFakeReaction);
             
-            analyser.getByteFrequencyData(dataArray);
-            let bass = 0;
-            for(let i = 0; i < 4; i++) { bass += dataArray[i]; }
-            bass = bass / 4;
-            document.body.style.setProperty('--audio-bass', bass / 255);
+            // Nur animieren, wenn auch wirklich Musik läuft
+            if(audio.paused) return;
 
+            let bass = 0;
             const canvas = document.getElementById("vis-canvas");
             const ctx = canvas.getContext("2d");
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            let barWidth = (canvas.width / bufferLength) * 1.4;
-            let barHeight, x = 0;
-            for(let i = 0; i < bufferLength; i++) {
-                barHeight = (dataArray[i] / 255) * canvas.height;
+            
+            let barWidth = (canvas.width / 32) * 1.4;
+            let x = 0;
+
+            for(let i = 0; i < 32; i++) {
+                // Erzeugt ein realistisches, weiches Auf- und Abspringen der Balken
+                let target = 10 + Math.random() * 90;
+                fakeVisData[i] += (target - fakeVisData[i]) * 0.15;
+
+                if(i < 4) bass += fakeVisData[i];
+
+                let barHeight = (fakeVisData[i] / 100) * canvas.height;
                 let grad = ctx.createLinearGradient(0, canvas.height, 0, canvas.height - barHeight);
                 grad.addColorStop(0, 'rgba(0, 119, 182, 0.8)');
                 grad.addColorStop(0.6, 'rgba(0, 242, 254, 0.9)');
                 grad.addColorStop(1, 'rgba(255, 255, 255, 0.9)');
+                
                 ctx.fillStyle = grad;
                 ctx.fillRect(x, canvas.height - barHeight, barWidth - 3, barHeight);
                 x += barWidth;
             }
-        }
 
-        // Benutzerinteraktion fängt Autoplay-Blockaden und suspensed AudioContexts auf
-        window.addEventListener('click', () => {
-            if (audio.paused) {
-                audio.play().catch(e => console.log(e));
-            }
-            if(audioCtx && audioCtx.state === 'suspended') {
-                audioCtx.resume().then(() => {
-                    renderAudioReaction();
-                });
-            } else {
-                initAudioReactor();
-            }
-        });
+            // Variable für die pulsierenden Wasserblasen einspeisen
+            document.body.style.setProperty('--audio-bass', (bass / 400));
+        }
 
         audio.addEventListener('timeupdate', function() {
             if (audio.duration) {
@@ -310,24 +274,36 @@
         
         audio.addEventListener('ended', playRandomSong);
         
-        // Initialer Startschuss
+        // Startet Musik und Visualizer parallel, ohne sie zu verknüpfen
         playRandomSong();
+        renderFakeReaction();
 
         // ----------------------------------------------------
-        // GMOD LADEBALKEN (STEAMCMD SYNC)
+        // BEHOBEN: ROHE GMOD LADEBALKEN-LOGIK (Stabile Mathematik)
         // ----------------------------------------------------
-        let totalFiles = 0, neededFiles = 0;
-        function SetStatusChanged(status) { document.getElementById("status-text").innerText = status; }
-        function SetFilesTotal(total) { if (total > totalFiles) totalFiles = total; }
+        let totalFiles = 0;
+        let neededFiles = 0;
+
+        function SetStatusChanged(status) { 
+            document.getElementById("status-text").innerText = status; 
+        }
+
+        function SetFilesTotal(total) { 
+            totalFiles = total; 
+        }
+
         function SetFilesNeeded(needed) {
             neededFiles = needed;
-            if (neededFiles > totalFiles) totalFiles = neededFiles;
             if (totalFiles > 0) {
-                let percentage = Math.max(0, Math.min(100, ((totalFiles - neededFiles) / totalFiles) * 100));
+                let downloaded = totalFiles - neededFiles;
+                let percentage = (downloaded / totalFiles) * 100;
                 document.getElementById("load-progress").style.width = percentage + "%";
             }
         }
-        function DownloadingFile(fileName) { document.getElementById("current-file").innerText = "Datenstrom: " + fileName; }
+
+        function DownloadingFile(fileName) { 
+            document.getElementById("current-file").innerText = "Abgleich: " + fileName; 
+        }
     </script>
 </body>
 </html>
