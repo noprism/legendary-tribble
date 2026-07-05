@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Metrostroi Transit Authority - Aero Edition</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            /* Typischer Frutiger Aero Hintergrund: Heller, optimistischer Farbverlauf */
+            background: linear-gradient(135deg, #00b4d8 0%, #0077b6 50%, #03045e 100%);
+            color: #0f172a;
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 35px;
+        }
+
+        /* Hintergrund-Overlay für den typischen "Aurora/Waves"-Look oder ein glänzendes Renderbild */
+        .background-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.3) 0%, transparent 50%),
+                        linear-gradient(0deg, rgba(0, 119, 182, 0.5), rgba(255, 255, 255, 0.1));
+            z-index: -1;
+        }
+
+        /* Der Header im sauberen Corporate-Look von 2008 */
+        .header { 
+            text-align: center; 
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 20px;
+            padding: 15px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15);
+            position: relative;
+        }
+        .header h1 { 
+            font-size: 2.5rem; 
+            color: #ffffff; 
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+        .header p { font-size: 1.1rem; color: #e0f2fe; margin-top: 5px; }
+
+        /* NEU: Das Musik-Notification-Gadget im Windows Media Player Stil */
+        .music-gadget {
+            position: absolute;
+            top: 110px;
+            right: 35px;
+            width: 280px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.2) 100%);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            border-radius: 14px;
+            padding: 12px 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15), inset 0 1px 1px rgba(255,255,255,0.5);
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            z-index: 10;
+        }
+        .music-gadget::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 50%;
+            background: linear-gradient(to bottom, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 100%);
+            pointer-events: none;
+        }
+        .music-info { display: flex; flex-direction: column; }
+        .music-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: #0284c7; font-weight: bold; }
+        .music-title { font-size: 0.95rem; font-weight: 600; color: #014f86; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .music-artist { font-size: 0.8rem; color: #334155; }
+        
+        /* Kleiner blauer Fortschrittsbalken für den Song */
+        .music-progress-container {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.1);
+            height: 6px;
+            border-radius: 3px;
+            overflow: hidden;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+        .music-progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(to bottom, #38bdf8 0%, #0284c7 100%);
+            border-radius: 3px;
+            transition: width 0.1s linear;
+        }
+
+        /* Das Guide-System im Windows Aero Glass Design */
+        .guide-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            margin: auto 0;
+            width: 100%;
+            padding-right: 300px; /* Platzhalter, damit die Kacheln nicht hinter dem Musik-Gadget liegen */
+        }
+
+        @media (max-width: 1200px) {
+            .guide-container { padding-right: 0; margin-top: 140px; } /* Fallback für kleinere Bildschirme */
+        }
+
+        .step-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0.25) 100%);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            border-radius: 16px;
+            flex: 1;
+            padding: 22px;
+            box-shadow: 0 10px 30px 0 rgba(0, 0, 0, 0.15), inset 0 1px 1px rgba(255, 255, 255, 0.6);
+            position: relative;
+            overflow: hidden;
+        }
+        .step-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 50%;
+            background: linear-gradient(to bottom, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 100%);
+            pointer-events: none;
+        }
+
+        .step-num {
+            font-size: 0.85rem;
+            font-weight: bold;
+            color: #0369a1;
+            background: rgba(255, 255, 255, 0.6);
+            padding: 3px 8px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .step-card h3 { font-size: 1.25rem; color: #014f86; margin-bottom: 8px; font-weight: 600; }
+        .step-card p { font-size: 0.95rem; color: #0f172a; line-height: 1.5; font-weight: 500; }
+        
+        .key-badge {
+            background: linear-gradient(to bottom, #ffffff 0%, #e2e8f0 100%);
+            color: #334155;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1), inset 0 1px 0 #fff;
+            border: 1px solid #cbd5e1;
+        }
+
+        /* Ladebalken & Footer im Hochglanz-Look */
+        .footer {
+            background: rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
+        }
+
+        .progress-container {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.15);
+            height: 14px;
+            border-radius: 7px;
+            margin-bottom: 12px;
+            overflow: hidden;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(to bottom, #52b788 0%, #74c69d 30%, #2d6a4f 100%);
+            box-shadow: 0 0 10px rgba(116, 198, 157, 0.8);
+            border-radius: 7px;
+            transition: width 0.4s ease;
+            position: relative;
+        }
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0) 100%);
+            animation: move-gloss 2s infinite linear;
+        }
+
+        @keyframes move-gloss {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .status-layout {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #status-text { font-size: 1.1rem; font-weight: 600; color: #ffffff; text-shadow: 0 1px 2px rgba(0,0,0,0.3); }
+        #current-file { font-size: 0.95rem; color: #f1f5f9; font-weight: 500; text-shadow: 0 1px 1px rgba(0,0,0,0.2); }
+    </style>
+</head>
+<body>
+
+    <div class="background-overlay"></div>
+
+    <div class="header">
+        <h1>Metrostroi Transit Authority</h1>
+        <p>Inbetriebsetzung läuft... | Zentraler Sektor auf Map: <span id="map-name" style="color: #ffffff; font-weight: bold;">Lade...</span></p>
+    </div>
+
+    <div class="music-gadget">
+        <div class="music-info">
+            <span class="music-label">Aktueller Titel</span>
+            <span class="music-title" id="track-title">Warte...</span>
+            <span class="music-artist" id="track-artist">Solar Fields</span>
+        </div>
+        <div class="music-progress-container">
+            <div class="music-progress-bar" id="track-progress"></div>
+        </div>
+    </div>
+
+    <div class="guide-container">
+        
+        <div class="step-card">
+            <div class="step-num">Schritt 1</div>
+            <h3>Hauptschalter (GV)</h3>
+            <p>Gehe unter den Wagen oder öffne das Schalttafel-Menü. Lege den <strong>Haupttrennschalter (GV)</strong> um, um die Stromzufuhr zu aktivieren.</p>
+        </div>
+
+        <div class="step-card">
+            <div class="step-num">Schritt 2</div>
+            <h3>Batterie & Automaten</h3>
+            <p>Schalte auf dem Bedienpult die <span class="key-badge">Batterie (VB)</span> ein. Drücke danach die Sicherungsautomaten an der Rückwand hoch.</p>
+        </div>
+
+        <div class="step-card">
+            <div class="step-num">Schritt 3</div>
+            <h3>Pneumatik & Funk</h3>
+            <p>Aktiviere den Kompressor, um Luftdruck aufzubauen. Schalte das ARS/ALS-System ein und stelle die Funkfrequenz für die Leitstelle ein.</p>
+        </div>
+
+        <div class="step-card">
+            <div class="step-num">Schritt 4</div>
+            <h3>Reverser & Abfahrt</h3>
+            <p>Stecke den <span class="key-badge">Reverser</span> ein (Position Vorwärts). Löse die pneumatische Bremse und bewege den Fahrschalter vorsichtig auf Position F1.</p>
+        </div>
+
+    </div>
+
+    <div class="footer">
+        <div class="progress-container">
+            <div class="progress-bar" id="load-progress"></div>
+        </div>
+        <div class="status-layout">
+            <div id="status-text">Systeme werden initialisiert...</div>
+            <div id="current-file">Verbindung wird aufgebaut...</div>
+        </div>
+    </div>
+
+    <audio id="loading-music"></audio>
+
+    <script>
+    // 1. URL Parameter auslesen (Mapname)
+    const urlParams = new URLSearchParams(window.location.search);
+    const mapName = urlParams.get('mapname');
+    if (mapName) document.getElementById('map-name').innerText = mapName;
+
+    // 2. MUSIK-LOGIK FÜR GITHUB PAGES (Jetzt als Objekte organisiert)
+    const playlist = [
+        { path: "music/kate.mp3", title: "Kate", artist: "Solar Fields" },
+        { path: "music/still_alive.mp3", title: "Still Alive (Instrumental)", artist: "Lisa Miskovsky / Solar Fields" },
+        { path: "music/heat.mp3", title: "Heat", artist: "Solar Fields" },
+        { path: "music/menu-theme.mp3", title: "Menu Theme", artist: "Solar Fields" }
+    ];
+
+    const audio = document.getElementById("loading-music");
+    let lastTrackIndex = -1;
+
+    function playRandomSong() {
+        if (playlist.length === 0) return;
+
+        let newIndex = lastTrackIndex;
+
+        if (playlist.length > 1) {
+            while (newIndex === lastTrackIndex) {
+                newIndex = Math.floor(Math.random() * playlist.length);
+            }
+        } else {
+            newIndex = 0;
+        }
+
+        lastTrackIndex = newIndex;
+        const currentSong = playlist[newIndex];
+
+        // Songdaten in den Player laden
+        audio.src = currentSong.path;
+        audio.volume = 0.15; 
+        
+        // Widget-Inhalte mit den echten Metadaten füllen
+        document.getElementById("track-title").innerText = currentSong.title;
+        document.getElementById("track-artist").innerText = currentSong.artist;
+        document.getElementById("track-progress").style.width = "0%"; // Reset Fortschritt
+
+        audio.play().catch(error => {
+            console.log("Autoplay-Hinweis: Wird im Gmod-Client automatisch geregelt.", error);
+        });
+    }
+
+    // NEU: Live-Fortschritt des aktuellen Songs berechnen und anzeigen
+    audio.addEventListener('timeupdate', function() {
+        if (audio.duration) {
+            let percentage = (audio.currentTime / audio.duration) * 100;
+            document.getElementById("track-progress").style.width = percentage + "%";
+        }
+    });
+
+    audio.addEventListener('ended', function() {
+        playRandomSong();
+    });
+
+    playRandomSong();
+
+
+    // 3. Gmod Live-Statistiken & Ladebalken
+    let totalFiles = 0;
+    let neededFiles = 0;
+
+    function SetStatusChanged(status) {
+        document.getElementById("status-text").innerText = status;
+    }
+
+    function SetFilesTotal(total) {
+        totalFiles = total;
+    }
+
+    function SetFilesNeeded(needed) {
+        neededFiles = needed;
+        if (totalFiles > 0) {
+            let downloaded = totalFiles - neededFiles;
+            let percentage = (downloaded / totalFiles) * 100;
+            document.getElementById("load-progress").style.width = percentage + "%";
+        }
+    }
+
+    function DownloadingFile(fileName) {
+        document.getElementById("current-file").innerText = "Abgleich: " + fileName;
+    }
+</script>
+</body>
+</html>
