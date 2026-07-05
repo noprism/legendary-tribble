@@ -1,5 +1,5 @@
 /* ==========================================================================
-   FRUTIGER AERO - AUDIO-REACTIVE MATERIAL EDITION (STYLE.CSS)
+   FRUTIGER AERO - VISTA PRESETS & RE-BALANCED SKEUOMORPHISM (STYLE.CSS)
    ========================================================================== */
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -7,20 +7,17 @@
 body {
     background: linear-gradient(135deg, #00f2fe 0%, #4facfe 25%, #0052d4 60%, #4364f7 85%, #6fb1fc 100%);
     color: #0f172a;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
     overflow: hidden;
     height: 100vh;
     display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    padding: 35px;
-    position: relative;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
     --audio-bass: 0;
 }
 
-/* --------------------------------------------------------------------------
-   HINTERGRUND & AURORA EFFECTS
-   -------------------------------------------------------------------------- */
+/* BACKDROP VISUALS */
 .background-overlay {
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
@@ -42,248 +39,206 @@ body {
 
 @keyframes wave-pulse {
     0%, 100% { transform: rotate(-4deg) scale(1); opacity: 0.7; }
-    50% { transform: rotate(-6deg) scale(1.08); opacity: 0.95; }
+    50% { transform: rotate(-6deg) scale(1.05); opacity: 0.95; }
 }
 
-/* --------------------------------------------------------------------------
-   BEHOBEN: REAKTIVE BLASEN-ARCHITEKTUR (Float + Bass-Scale kombiniert)
-   -------------------------------------------------------------------------- */
-.bubble-wrapper {
-    position: absolute;
-    z-index: -1;
-}
-
-/* Der Wrapper kümmert sich rein um das Schweben im Raum */
-.wrapper1 { top: 18%; left: 48%; animation: float-slow 14s infinite ease-in-out; }
-.wrapper2 { top: 52%; left: 10%; animation: float-reverse 10s infinite ease-in-out; }
+/* BEHOBEN: REAKTIVES PULSIEREN + UNABHÄNGIGES SCHWEBEN DER BLASEN */
+.bubble-wrapper { position: absolute; z-index: -1; }
+.wrapper1 { top: 12%; left: 75%; animation: float-slow 16s infinite ease-in-out; }
+.wrapper2 { top: 65%; left: 8%; animation: float-reverse 12s infinite ease-in-out; }
 
 .bubble-orb {
     border-radius: 50%;
     background: radial-gradient(circle at 35% 35%, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.2) 25%, rgba(0, 242, 254, 0.35) 55%, transparent 100%);
-    /* Jetzt über transform: scale() -> Verhindert Ruckeln und bricht nicht ab! */
-    transform: scale(calc(1 + (var(--audio-bass) * 0.35)));
+    transform: scale(calc(1 + (var(--audio-bass) * 0.4)));
     transition: transform 0.05s linear;
 }
+.orb1 { width: 150px; height: 150px; box-shadow: inset -6px -6px 14px rgba(255,255,255,0.6), 0 12px 24px rgba(0,63,115,0.15); }
+.orb2 { width: 90px; height: 90px; box-shadow: inset -4px -4px 10px rgba(255,255,255,0.6), 0 8px 20px rgba(0,0,0,0.06); }
 
-/* Hier definieren wir die Grundgrößen der physischen Objekte */
-.orb1 { 
-    width: 130px; height: 130px; 
-    box-shadow: inset -6px -6px 14px rgba(255,255,255,0.6), 
-                inset 4px 4px 10px rgba(0,0,0,0.05),
-                0 12px 24px rgba(0, 63, 115, calc(0.1 + var(--audio-bass) * 0.2));
-}
-.orb2 { 
-    width: 80px; height: 80px; 
-    box-shadow: inset -4px -4px 10px rgba(255,255,255,0.6), 0 8px 20px rgba(0,0,0,0.06);
-}
-
-@keyframes float-slow {
-    0%, 100% { transform: translateY(0) translateX(0); }
-    50% { transform: translateY(-30px) translateX(20px); }
-}
-@keyframes float-reverse {
-    0%, 100% { transform: translateY(0) translateX(0); }
-    50% { transform: translateY(22px) translateX(-15px); }
-}
+@keyframes float-slow { 0%, 100% { transform: translateY(0) translateX(0); } 50% { transform: translateY(-35px) translateX(20px); } }
+@keyframes float-reverse { 0%, 100% { transform: translateY(0) translateX(0); } 50% { transform: translateY(25px) translateX(-20px); } }
 
 /* --------------------------------------------------------------------------
-   GEGENSTAND 1: GLASS-BOARD (Header)
+   THE SHELL APPLIKATION (Das Hauptfenster)
    -------------------------------------------------------------------------- */
-.header { 
-    text-align: center; 
-    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0.15) 100%);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 2px solid rgba(255, 255, 255, 0.8);
-    border-radius: 24px;
-    padding: 22px;
-    box-shadow: 0 4px 1px rgba(255,255,255,0.5), 0 18px 40px rgba(0, 39, 73, 0.25), inset 0 2px 0 rgba(255,255,255,1);
-    -webkit-box-reflect: below 6px linear-gradient(transparent, transparent 65%, rgba(255, 255, 255, 0.18));
-}
-.header h1 { font-size: 2.5rem; color: #ffffff; text-shadow: 0 2px 8px rgba(0, 47, 87, 0.6); font-weight: 600; }
-.header p { font-size: 1.1rem; color: #f0f9ff; font-weight: 500; text-shadow: 0 1px 3px rgba(0,0,0,0.2); }
-
-/* --------------------------------------------------------------------------
-   GEGENSTAND 2: COCKPIT MODULES (Kacheln)
-   -------------------------------------------------------------------------- */
-.guide-container {
-    display: flex;
-    justify-content: space-between;
-    gap: 22px;
-    margin: auto 0;
+.app-window {
     width: 100%;
-    padding-right: 330px; 
-}
-
-@media (max-width: 1200px) {
-    .guide-container { padding-right: 0; margin-top: 140px; }
-}
-
-.step-card {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.25) 100%);
+    max-width: 1280px;
+    height: 90vh;
+    max-height: 760px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.45) 0%, rgba(255, 255, 255, 0.15) 100%);
     backdrop-filter: blur(25px);
     -webkit-backdrop-filter: blur(25px);
-    border: 1px solid rgba(255, 255, 255, 0.8);
-    border-radius: 24px;
-    flex: 1;
-    padding: 26px;
-    box-shadow: 0 6px 0 rgba(255,255,255,0.4),
-                0 18px 40px rgba(0, 39, 73, 0.18), 
-                0 0 calc(var(--audio-bass) * 20px) rgba(0, 242, 254, calc(var(--audio-bass) * 0.4)), 
-                inset 0 1px 0 rgba(255, 255, 255, 1);
-    position: relative;
+    border: 2px solid rgba(255, 255, 255, 0.8);
+    border-radius: 20px;
+    box-shadow: 0 25px 55px rgba(0, 39, 73, 0.35), inset 0 1px 1px rgba(255,255,255,0.8);
+    display: flex;
+    flex-direction: column;
     overflow: hidden;
-    transition: transform 0.2s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.1s linear, border-color 0.2s ease;
 }
 
-.step-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0; height: 100%;
-    background: radial-gradient(circle at 50% -10%, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0.15) 40%, transparent 70%);
+/* WINDOW TITELLEISTE */
+.app-header {
+    background: linear-gradient(to bottom, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.05) 100%);
+    padding: 14px 22px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+}
+.app-title-group { display: flex; align-items: center; gap: 8px; }
+.app-icon {
+    width: 18px; height: 18px;
+    background: linear-gradient(to bottom, #74c69d, #2d6a4f);
+    border-radius: 4px;
+    box-shadow: inset 0 1px 0 #fff, 0 1px 3px rgba(0,0,0,0.2);
+}
+.app-title-text { color: #ffffff; font-size: 0.95rem; font-weight: 600; text-shadow: 0 1px 3px rgba(0,39,73,0.6); }
+
+/* Deko-Schaltflächen */
+.window-controls { display: flex; gap: 6px; }
+.win-btn { width: 28px; height: 16px; border-radius: 3px; border: 1px solid rgba(255,255,255,0.4); background: rgba(255,255,255,0.2); }
+.win-close { background: linear-gradient(to bottom, #ff8b94, #ff3344); border-color: #ff3344; width: 36px; }
+
+/* SPALTEN-LAYOUT */
+.app-body {
+    flex: 1;
+    display: flex;
+    padding: 25px;
+    gap: 25px;
+    overflow: hidden;
+}
+
+/* LINKES PANEL: VERTIKALE OS-CHECKLISTE */
+.main-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+.section-title { font-size: 1.4rem; color: #004475; font-weight: 600; text-shadow: 0 1px 0 rgba(255,255,255,0.4); }
+
+.checklist-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* NEU: Das geschliffene Glas-Band */
+.check-item {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.45) 0%, rgba(255, 255, 255, 0.15) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    border-radius: 14px;
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    box-shadow: 0 4px 10px rgba(0, 39, 73, 0.05), 
+                0 0 calc(var(--audio-bass) * 12px) rgba(0, 242, 254, calc(var(--audio-bass) * 0.25)),
+                inset 0 1px 0 rgba(255, 255, 255, 0.7);
+    position: relative;
+    overflow: hidden;
+}
+
+/* BEHOBEN: Volumetrischer, elliptischer Lichtverlauf ohne fette Kante */
+.check-item::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 100%;
+    background: radial-gradient(ellipse at 50% -10%, rgba(255, 255, 255, 0.4) 0%, transparent 60%);
     pointer-events: none;
 }
 
-.step-card:hover {
-    transform: translateY(3px);
-    box-shadow: 0 2px 0 rgba(255,255,255,0.2), 0 8px 20px rgba(0, 39, 73, 0.15), 0 0 35px rgba(0, 242, 254, 0.7), inset 0 1px 2px rgba(255, 255, 255, 1);
-    border-color: rgba(0, 242, 254, 0.8);
-}
-
-.step-num {
-    font-size: 0.85rem;
-    font-weight: 700;
-    color: #ffffff;
-    background: linear-gradient(to bottom, #ccff00 0%, #70e000 40%, #38b000 70%, #004b23 100%);
+/* Hochglanz-Checkboxen */
+.check-box-glow {
+    width: 26px; height: 26px;
+    background: linear-gradient(to bottom, #b5e2fa 0%, #00b4d8 40%, #0077b6 100%);
     border: 1px solid rgba(255,255,255,0.7);
-    padding: 4px 14px;
-    border-radius: 20px;
-    display: inline-block;
-    margin-bottom: 14px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.2), inset 0 2px 2px rgba(255,255,255,0.6), inset 0 -2px 5px rgba(0,0,0,0.2);
-    text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.15), inset 0 2px 2px rgba(255,255,255,0.5);
+    flex-shrink: 0;
+}
+.check-mark {
+    width: 10px; height: 10px; background: #ffffff; border-radius: 50%;
+    box-shadow: 0 0 8px #ffffff;
 }
 
-.step-card h3 { font-size: 1.35rem; color: #004475; margin-bottom: 8px; font-weight: 600; }
-.step-card p { font-size: 0.98rem; color: #0f172a; line-height: 1.5; font-weight: 500; }
+.check-content h3 { font-size: 1.15rem; color: #004475; margin-bottom: 2px; font-weight: 600; }
+.check-content p { font-size: 0.92rem; color: #1e293b; line-height: 1.45; font-weight: 500; }
 
 .key-badge {
-    background: linear-gradient(to bottom, #ffffff 0%, #f1f5f9 45%, #cbd5e1 55%, #94a3b8 100%);
-    color: #0f172a;
-    padding: 4px 11px;
-    border-radius: 6px;
-    font-family: 'Segoe UI', monospace;
-    font-weight: 700;
-    box-shadow: 0 3px 0 #64748b, 0 5px 6px rgba(0,0,0,0.2), inset 0 1px 0 #fff;
-    border: 1px solid #94a3b8;
-    display: inline-block;
+    background: linear-gradient(to bottom, #ffffff 0%, #cbd5e1 100%);
+    color: #0f172a; padding: 2px 7px; border-radius: 5px; font-family: monospace; font-weight: 700;
+    box-shadow: 0 2px 0 #64748b, inset 0 1px 0 #fff; border: 1px solid #94a3b8; display: inline-block;
     text-shadow: 0 1px 0 #fff;
 }
 
-/* --------------------------------------------------------------------------
-   GEGENSTAND 3: REMOTE PLAYER GADGET
-   -------------------------------------------------------------------------- */
-.music-gadget {
-    position: absolute;
-    top: 120px; right: 35px; width: 300px;
-    background: linear-gradient(to bottom, #ffffff 0%, #f1f5f9 60%, #e2e8f0 100%);
-    border: 1px solid #94a3b8;
-    border-radius: 20px;
-    padding: 16px 20px;
-    box-shadow: 0 4px 0 #94a3b8, 0 16px 35px rgba(0,47,87,0.25), inset 0 2px 2px #fff;
+/* RECHTES PANEL: WINDOWS SIDEBAR GADGETS */
+.sidebar-panel {
+    width: 280px;
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    z-index: 10;
-    overflow: hidden;
-    -webkit-box-reflect: below 2px linear-gradient(transparent, rgba(255, 255, 255, 0.05));
+    gap: 20px;
 }
 
+.sidebar-gadget {
+    background: linear-gradient(to bottom, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.2) 100%);
+    border: 1px solid rgba(255,255,255,0.7);
+    border-radius: 16px;
+    padding: 15px;
+    box-shadow: 0 8px 20px rgba(0,47,87,0.12), inset 0 1px 1px rgba(255,255,255,0.8);
+    position: relative;
+    overflow: hidden;
+}
+.gadget-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: #0284c7; font-weight: 800; display: block; margin-bottom: 8px; }
+
+/* Media Player */
 .music-info { 
-    display: flex; 
-    flex-direction: column; 
-    background: linear-gradient(135deg, rgba(0, 140, 200, 0.12) 0%, rgba(0, 50, 150, 0.05) 100%);
-    padding: 10px;
-    border-radius: 12px;
-    border: 1px solid rgba(0,0,0,0.12);
-    box-shadow: inset 0 2px 5px rgba(0,0,0,0.15);
+    background: linear-gradient(135deg, rgba(0, 140, 200, 0.08) 0%, rgba(0, 50, 150, 0.03) 100%);
+    padding: 8px; border-radius: 10px; border: 1px solid rgba(0,0,0,0.08); box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
 }
-.music-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1.5px; color: #0284c7; font-weight: 800; }
-.music-title { font-size: 1.05rem; font-weight: 600; color: #005691; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.music-artist { font-size: 0.85rem; color: #334155; font-weight: 600; margin-bottom: 5px; }
+.music-title { font-size: 0.95rem; font-weight: 600; color: #005691; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.music-artist { font-size: 0.8rem; color: #475569; font-weight: 600; display: block; margin-bottom: 4px; }
+#vis-canvas { width: 100%; height: 35px; background: rgba(0, 0, 0, 0.03); border-radius: 4px; }
 
-#vis-canvas {
-    width: 100%;
-    height: 35px;
-    background: rgba(0, 0, 0, 0.04);
-    border-radius: 6px;
-    border: 1px solid rgba(0,0,0,0.05);
-    box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
-}
+.music-progress-container { width: 100%; background: #cbd5e1; height: 8px; border-radius: 4px; overflow: hidden; margin-top: 8px; border: 1px solid #94a3b8; box-shadow: inset 0 1px 3px rgba(0,0,0,0.2); }
+.music-progress-bar { height: 100%; width: 0%; background: linear-gradient(to bottom, #00f2fe, #0077b6); box-shadow: 0 0 8px rgba(0, 242, 254, 0.8); }
 
-.music-progress-container {
-    width: 100%;
-    background: #cbd5e1;
-    height: 10px;
-    border-radius: 5px;
-    overflow: hidden;
-    box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
-    border: 1px solid #94a3b8;
-}
-.music-progress-bar {
-    height: 100%; width: 0%;
-    background: linear-gradient(to bottom, #00f2fe 0%, #0077b6 100%);
-    border-radius: 5px;
-    box-shadow: 0 0 12px rgba(0, 242, 254, 0.9);
-}
+/* Status-Diagnose */
+.diagnostics-box { display: flex; flex-direction: column; gap: 6px; }
+.diag-row { display: flex; justify-content: space-between; font-size: 0.88rem; font-weight: 600; padding: 4px 0; border-bottom: 1px dashed rgba(0,0,0,0.1); }
+.diag-label { color: #475569; }
+.diag-value { color: #004475; text-align: right; max-width: 65%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 /* --------------------------------------------------------------------------
-   GEGENSTAND 4: VISTA ENERGIE-GLASROHR
+   UNTERER BEREICH: DIE OS TASKBAR (Gelsplit-Ladebalken)
    -------------------------------------------------------------------------- */
-.footer {
-    background: rgba(255, 255, 255, 0.4);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 2px solid rgba(255, 255, 255, 0.7);
-    padding: 24px;
-    border-radius: 24px;
-    box-shadow: 0 4px 1px rgba(255,255,255,0.4), 0 15px 35px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255,255,255,0.6);
+.app-taskbar {
+    background: rgba(255, 255, 255, 0.3);
+    border-top: 1px solid rgba(255, 255, 255, 0.5);
+    padding: 18px 25px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.5);
 }
 
 .progress-container {
-    width: 100%;
-    background: linear-gradient(to bottom, #1e293b 0%, #0f172a 100%);
-    height: 24px; 
-    border-radius: 12px;
-    margin-bottom: 12px;
-    overflow: hidden;
-    box-shadow: inset 0 4px 10px rgba(0,0,0,0.7), 0 1px 2px rgba(255,255,255,0.2);
-    border: 1px solid #475569;
+    width: 100%; background: linear-gradient(to bottom, #1e293b, #0f172a); height: 20px; border-radius: 10px; overflow: hidden;
+    box-shadow: inset 0 3px 6px rgba(0,0,0,0.5); border: 1px solid #475569; margin-bottom: 8px;
 }
 
 .progress-bar {
     height: 100%; width: 0%;
-    background: linear-gradient(to bottom, #adeffd 0%, #70e000 25%, #38b000 60%, #004b23 100%);
-    box-shadow: 0 0 calc(15px + (var(--audio-bass) * 20px)) #70e000, inset 0 3px 3px rgba(255,255,255,0.7);
-    border-radius: 12px;
-    transition: width 0.4s ease, box-shadow 0.08s linear;
-    position: relative;
+    background: linear-gradient(to bottom, #aacc00 0%, #70e000 30%, #38b000 65%, #004b23 100%);
+    box-shadow: 0 0 calc(15px + (var(--audio-bass) * 20px)) #70e000, inset 0 3px 3px rgba(255,255,255,0.6);
+    border-radius: 10px; transition: width 0.4s ease, box-shadow 0.08s linear; position: relative;
 }
-.progress-bar::before {
-    content: '';
-    position: absolute;
-    top: 2px; left: 0; right: 0; height: 30%;
-    background: linear-gradient(to bottom, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0) 100%);
-    border-radius: 6px;
-}
-.progress-bar::after {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; bottom: 0; right: 0;
-    background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.7) 50%, rgba(255,255,255,0) 100%);
-    animation: move-gloss 1.5s infinite linear;
-}
+.progress-bar::before { content: ''; position: absolute; top: 1px; left: 0; right: 0; height: 35%; background: linear-gradient(to bottom, rgba(255,255,255,0.5), transparent); }
+.progress-bar::after { content: ''; position: absolute; top: 0; left: 0; bottom: 0; right: 0; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5) 50%, transparent); animation: move-gloss 1.5s infinite linear; }
+
+@keyframes move-gloss { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
 
 .status-layout { display: flex; justify-content: space-between; align-items: center; }
-#status-text { font-size: 1.25rem; font-weight: 600; color: #ffffff; text-shadow: 0 2px 5px rgba(0, 39, 73, 0.7); }
-#current-file { font-size: 1.05rem; color: #f8fafc; font-weight: 500; text-shadow: 0 1px 3px rgba(0, 39, 73, 0.5); }
+#status-text { font-size: 1.1rem; font-weight: 600; color: #ffffff; text-shadow: 0 1px 3px rgba(0, 39, 73, 0.6); }
+#current-file { font-size: 0.95rem; color: #f8fafc; font-weight: 500; text-shadow: 0 1px 2px rgba(0, 39, 73, 0.4); }
