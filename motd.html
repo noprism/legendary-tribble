@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Metrostroi Transit Authority - Ingame Support Center</title>
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+    
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: linear-gradient(135deg, #00f2fe 0%, #4facfe 25%, #0052d4 60%, #4364f7 85%, #6fb1fc 100%);
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 25px;
+        }
+
+        .background-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.4) 0%, transparent 50%),
+                        radial-gradient(circle at 20% 80%, rgba(0, 242, 254, 0.35) 0%, transparent 50%),
+                        linear-gradient(rgba(255, 255, 255, 0.04) 50%, transparent 50%);
+            background-size: 100% 100%, 100% 100%, 100% 4px;
+            z-index: -3;
+        }
+
+        .aurora-wave {
+            position: absolute;
+            top: -30%; left: -20%; width: 150%; height: 70%;
+            background: radial-gradient(ellipse at 50% 0%, rgba(255, 255, 255, 0.5) 0%, rgba(0, 242, 254, 0.3) 45%, transparent 75%);
+            transform: rotate(-4deg);
+            z-index: -2;
+        }
+
+        .wiki-window {
+            width: 96vw;
+            max-width: 1150px;
+            height: 90vh;
+            max-height: 720px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0.25) 100%);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            border-radius: 20px;
+            box-shadow: 0 25px 60px rgba(0, 39, 73, 0.35), inset 0 1px 1px rgba(255,255,255,0.8);
+            display: flex;
+            overflow: hidden;
+        }
+
+        .wiki-sidebar {
+            width: 270px;
+            background: linear-gradient(to bottom, rgba(255,255,255,0.2) 0%, rgba(0,0,0,0.05) 100%);
+            border-right: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 22px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            flex-shrink: 0;
+        }
+
+        .sidebar-header { display: flex; align-items: center; gap: 10px; margin-bottom: 25px; }
+        .metro-logo {
+            width: 24px; height: 24px;
+            background: linear-gradient(to bottom, #74c69d, #2d6a4f);
+            border-radius: 6px;
+            box-shadow: inset 0 1px 0 #fff, 0 2px 4px rgba(0,0,0,0.15);
+        }
+        .sidebar-header h2 { font-size: 1.15rem; color: #ffffff; text-shadow: 0 1px 2px rgba(0,39,73,0.5); font-weight: 600; }
+
+        .nav-group { display: flex; flex-direction: column; gap: 8px; }
+        .nav-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: #0284c7; font-weight: 800; margin-bottom: 4px; }
+
+        .nav-link { text-decoration: none; width: 100%; }
+        .nav-btn {
+            width: 100%; padding: 10px 15px; border: 1px solid rgba(255,255,255,0.4); border-radius: 10px;
+            background: linear-gradient(to bottom, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.1) 100%);
+            color: #0f172a; font-size: 0.9rem; font-weight: 600; text-align: left; cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.03); transition: all 0.2s ease;
+        }
+        .nav-btn:hover {
+            background: rgba(255,255,255,0.6); transform: translateX(3px); border-color: rgba(0, 242, 254, 0.5);
+            box-shadow: 0 0 10px rgba(0,242,254,0.3);
+        }
+        .nav-btn.active {
+            background: linear-gradient(to bottom, #00b4d8 0%, #0077b6 100%);
+            color: #ffffff; border-color: #0077b6; box-shadow: 0 4px 10px rgba(0,119,182,0.3);
+            text-shadow: 0 1px 1px rgba(0,0,0,0.2);
+        }
+
+        .sidebar-footer { font-size: 0.75rem; color: rgba(255,255,255,0.7); font-weight: 500; }
+
+        .wiki-content { flex: 1; display: flex; flex-direction: column; background: rgba(255,255,255,0.1); overflow: hidden; }
+
+        .content-header {
+            padding: 20px 25px; background: rgba(255,255,255,0.15);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.25);
+            display: flex; flex-direction: column; gap: 15px;
+            flex-shrink: 0;
+        }
+        .content-header h1 { font-size: 1.55rem; color: #004475; font-weight: 600; text-shadow: 0 1px 0 rgba(255,255,255,0.5); }
+
+        .state-tabs { display: flex; gap: 6px; }
+        .state-link { text-decoration: none; }
+        .state-tab {
+            padding: 9px 15px; border: 1px solid rgba(255,255,255,0.5); border-radius: 8px 8px 0 0;
+            background: linear-gradient(to bottom, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.05) 100%);
+            color: #1e293b; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.15s ease;
+        }
+        .state-tab:hover { background: rgba(255,255,255,0.5); }
+        .state-tab.active {
+            background: linear-gradient(to bottom, #ffffff 0%, rgba(255, 255, 255, 0.8) 100%);
+            border-bottom-color: transparent; color: #005691; box-shadow: 0 -2px 6px rgba(0,0,0,0.03);
+            position: relative; z-index: 2;
+        }
+
+        .content-body {
+            flex: 1; padding: 25px; overflow-y: auto;
+            background: linear-gradient(to bottom, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.05) 100%);
+        }
+
+        .content-body::-webkit-scrollbar { width: 8px; }
+        .content-body::-webkit-scrollbar-track { background: rgba(0,0,0,0.03); border-radius: 4px; }
+        .content-body::-webkit-scrollbar-thumb {
+            background: linear-gradient(to right, #38bdf8, #0284c7); border-radius: 4px;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.3);
+        }
+
+        .content-body h2 { font-size: 1.35rem; color: #003e6b; margin-bottom: 8px; font-weight: 600; border-bottom: 1px solid rgba(0,0,0,0.08); padding-bottom: 5px; }
+        .content-body h3 { font-size: 1.1rem; color: #0284c7; margin: 14px 0 6px 0; font-weight: 600; }
+        .content-body p { font-size: 0.98rem; color: #0f172a; line-height: 1.5; margin-bottom: 14px; font-weight: 500; }
+
+        .content-body ul { list-style: none; display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+        .content-body li {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.1) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.5); border-radius: 12px; padding: 12px 18px;
+            font-size: 0.94rem; color: #1e293b; line-height: 1.5; font-weight: 500;
+            box-shadow: 0 2px 5px rgba(0,39,73,0.02), inset 0 1px 0 #fff;
+            position: relative; padding-left: 35px;
+        }
+        .content-body li::before {
+            content: ''; position: absolute; top: 18px; left: 15px; width: 8px; height: 8px;
+            background: linear-gradient(to bottom, #00f2fe 0%, #0077b6 100%); border-radius: 50%;
+            box-shadow: 0 0 6px #00f2fe;
+        }
+
+        .key-badge {
+            background: linear-gradient(to bottom, #ffffff 0%, #cbd5e1 100%);
+            color: #0f172a; padding: 2px 7px; border-radius: 5px; font-family: monospace; font-weight: 700;
+            box-shadow: 0 2px 0 #64748b, inset 0 1px 0 #fff; border: 1px solid #94a3b8; display: inline-block;
+            text-shadow: 0 1px 0 #fff; font-size: 0.85rem;
+        }
+        
+        .info-warning {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.2) 0%, rgba(245, 158, 11, 0.05) 100%);
+            border: 1px solid rgba(245, 158, 11, 0.5); border-radius: 12px; padding: 12px 15px;
+            font-size: 0.94rem; color: #78350f; font-weight: 500; margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="background-overlay"></div>
+    <div class="aurora-wave"></div>
+
+    <div class="wiki-window">
+        
+        <div class="wiki-sidebar">
+            <div class="sidebar-header">
+                <div class="metro-logo"></div>
+                <h2>MTA Support Center</h2>
+            </div>
+            
+            <div class="nav-group">
+                <span class="nav-label">Fahrzeugflotte</span>
+                <a class="nav-link" href="?train=717" id="link-717"><button class="nav-btn">81-717 Номерной</button></a>
+                <a class="nav-link" href="?train=702" id="link-702"><button class="nav-btn">81-702 Typ D</button></a>
+                <a class="nav-link" href="?train=502" id="link-502"><button class="nav-btn">81-502 Ema-502</button></a>
+                <a class="nav-link" href="?train=720" id="link-720"><button class="nav-btn">81-720 Яуза</button></a>
+                <a class="nav-link" href="?train=722" id="link-722"><button class="nav-btn">81-722 Юбилейный</button></a>
+            </div>
+
+            <div class="sidebar-footer">
+                <p>ULX MOTD Portal</p>
+                <p>Engine: Hard Sub-Routing</p>
+            </div>
+        </div>
+
+        <div class="wiki-content">
+            <div class="content-header">
+                <h1 id="current-train-name">Baureihe Laden...</h1>
+                <div class="state-tabs">
+                    <a class="state-link" href="" id="tab-fully"><button class="state-tab">Vollständig fahrbereit</button></a>
+                    <a class="state-link" href="" id="tab-depot"><button class="state-tab">Kaltstart im Betriebshof</button></a>
+                    <a class="state-link" href="" id="tab-deadend"><button class="state-tab">Wendeanlage & Kehrgleis</button></a>
+                    <a class="state-link" href="" id="tab-night"><button class="state-tab">Nach Nachtabstellung</button></a>
+                </div>
+            </div>
+
+            <div class="content-body" id="wiki-body">
+                </div>
+        </div>
+    </div>
+
+    <script>
+        // BEHOBEN: urlParams-Deklaration eingefügt, um ReferenceError zu vernichten
+        const urlParams = new URLSearchParams(window.location.search);
+
+        const wikiData = {
+            "717": {
+                name: "Baureihe 81-717 \"Номерной\"",
+                fully: `
+                    <h2>Inbetriebnahme: Vollständig fahrbereit (Powered-up state)</h2>
+                    <p>Nutze dieses Verfahren, wenn der Zug betriebsbereit über den Train Spawner auf die Strecke gesetzt wurde.</p>
+                    <ul>
+                        <li>Nimm auf dem Fahrersitz Platz. Stecke mit <span class="key-badge">Shift + 0</span> den Reverser-Schlüssel ein und stelle ihn mit <span class="key-badge">0</span> auf "Vorwärts".</li>
+                        <li>Verbinde das Pneumatik-Bremsventil durch Ziehen des blauen Hebels (<span class="key-badge">Shift + L</span>). Move das Ventil auf Position 1 (<span class="key-badge">R</span>), um die тормозная магистраль auf den Regeldruck von 5,0 - 5.2 bar zu laden.</li>
+                        <li>Drücke für 2-3 Sekunden den Taster <strong>Возврат РП</strong> (<span class="key-badge">G</span>), um den elektronischen Überlastschutz (RP/BV) zu resetten. Ohne diesen Reset nehmen die Motoren keinen Fahrstrom an.</li>
+                        <li>Türen abfertigen: Öffne die linke Seite mit <span class="key-badge">A</span> oder die rechte Seite mit <span class="key-badge">D</span>. Schließe alle Türen über den Schalter <span class="key-badge">V</span>.</li>
+                        <li>Fahrhebel (KV): Schalte mit <span class="key-badge">W</span> die Positionen auf (Stufe X1 für Depot/Rangieren, X2-X3 für normale Streckenfahrt). Drücke <span class="key-badge">4</span> für den Leerlauf (Rollen unter Eigenimpuls). Elektrisch bremsen mit <span class="key-badge">S</span> (Stufen T1, T1A, T2).</li>
+                    </ul>
+                `,
+                depot: `
+                    <h2>Betriebsmodus: Kaltstart im Betriebshof (Depot Startup)</h2>
+                    <div class="info-warning">Achtung: Bevor du die Elektronik einschaltest, stelle sicher, dass der Zug mit der деповская Luftleitung gekoppelt und von der Hochspannung (Udočka) getrennt ist!</div>
+                    <ul>
+                        <li>Schalte an der Cockpit-Rückwand die drei Haupt-Schutzautomaten <span class="key-badge">АР-63</span>, <span class="key-badge">А-53</span> und <span class="key-badge">А-49</span> hoch.</li>
+                        <li>Aktiviere darunter den <strong>Выключатель батарей (ВБ)</strong>. Prüfe am Voltmeter die Bordspannung; diese muss zwingend ≥ 62 Volt betragen.</li>
+                        <li>Schalte den Verstärker (УНЧ), das Kontroll-Mikrofon (КГ) und den Radio-Ansager ein. Richte das АСНП-Display ein (Fahrernummer, Route, Pfad).</li>
+                        <li>Kontrolliere die Sicherheits-Plomben an folgenden Schaltern: <span class="key-badge">UAVA</span>, <span class="key-badge">РЦ-АРС</span>, <span class="key-badge">РЦ-УОС</span>, <span class="key-badge">КАХ</span>, <span class="key-badge">Откл. БВ</span> und <span class="key-badge">ВАХ</span>.</li>
+                        <li>Öffne den Absperrhahn mit <span class="key-badge">Num 0</span>, bringe das Bremsventil in Fahrtstellung (<span class="key-badge">Num 2</span>) und lade auf 5 Bar auf. Wandere durch die Zwischenwagen (Endtüren mit <span class="key-badge">E</span> öffnen) und aktiviere überall die Batterien (ВБ).</li>
+                        <li>Schalte außen unter dem Wagenkasten den mechanischen Trennschalter <strong>ГВ</strong> ein. Verbinde das Hallen-Stromkabel (Udočka) mit dem Abnehmer des 2. Wagens und lege den Depot-Wandhebel für 825V um.</li>
+                        <li>Zurück im Führerstand: Reverser vorwärts (<span class="key-badge">0</span>), ARS & ALS Kippschalter aktivieren (Zweiklang ertönt). Drücke die Pedale бдительности (<span class="key-badge">Leertaste</span>), um das Signal zu quittieren. Resetten mit <span class="key-badge">G</span>.</li>
+                        <li>Rollprobe (Nakat): Gib kurz Fahrstufe <span class="key-badge">X1</span>. Rolle mit maximal 5 km/h aus der Halle, bis die Stromschienen-Schuhe greifen. Vollbremsung einleiten, 3 kurze Töne (<span class="key-badge">L</span>) abgeben und die Udočka trennen lassen.</li>
+                    </ul>
+                `,
+                deadend: `
+                    <h2>Betriebsmodus: Wendeanlage & Kehrgleis (Dead End Turning)</h2>
+                    <p>Sicherungsschritte beim Wechseln der Fahrtrichtung im Kehrabschnitt der Endstationen.</p>
+                    <ul>
+                        <li>Nachdem du die ersten beiden Wagen visuell auf verbliebene Fahrgäste kontrolliert hast, schließt du die Türen. Fahre per Rangiersignal ins Kehrgleis ein.</li>
+                        <li>Bringe den Zug zum Stillstand, leite eine pneumatische Vollbremsung (PST) ein und sperre die Trennhähne mit <span class="key-badge">Shift + L</span> (Kran машиниста schließen).</li>
+                        <li>Stelle den Richtungsschalter auf Null (<span class="key-badge">9</span>) und ziehe den Reversier-Schlüssel ab mit <span class="key-badge">Shift + 7</span>. Deaktiviere den Batterie-Hauptschalter (ВБ).</li>
+                        <li>Sperre die Kabinentür ab. Gehe durch die Wagons zur entgegengesetzten Zugspitze. Kontrolliere unterwegs die Feuerlöscher und die Trittschwellen auf Unregelmäßigkeiten.</li>
+                        <li>In der neuen Frontkabine: Schalte die Batterie ein, öffne die Luft-Trennhähne, stecke den Reverser ein (<span class="key-badge">Shift + 0</span>) und wähle Vorwärts (<span class="key-badge">0</span>).</li>
+                        <li>Schalte das ARS-Sicherungssystem ein, quittiere den Warnton mit der <span class="key-badge">Leertaste</span> und fahre bei freigegebenem Rangiersignal zurück an den Bahnsteig.</li>
+                    </ul>
+                `,
+                night: `
+                    <h2>Betriebsmodus: Inbetriebnahme nach Nachtabstellung (Night Stabling)</h2>
+                    <p>Prozedur zum Aufwecken des Zugverbandes aus dem Ruhezustand auf den Strecken- oder Abstellgleisen.</p>
+                    <ul>
+                        <li>Hol dir deine Reversierkurbel im Posten ab. Gehe zum Zug und aktiviere in der Frontkabine den Batterie-Hauptschalter und das Notlicht.</li>
+                        <li>Wandere nach hinten durch den kalten Zugverband. Schalte in den Kabinen der Zwischenwagen die Batterien (ВБ) ein und prüfe, ob die mechanischen Handbremsspindeln vollständig gelöst sind.</li>
+                        <li>Kontrolliere an den Wagon-Manometern, ob der Bremszylinderdruck ordnungsgemäß zwischen 2.2 - 2.4 bar liegt.</li>
+                        <li>In der Heckkabine: Öffne die Trennhähne, bringe das Bremsventil in Fahrtstellung Modus II, um die Leitung auf 5.0 - 5.2 bar aufzupressen.</li>
+                        <li>Schalte das ARS ein, quittiere den Klingelton mit der <span class="key-badge">Leertaste</span> und teste die elektrische Schaltung kurz auf Bremswirkung. Reverser abziehen, Kabine zusperren.</li>
+                        <li>Kehre in die Front zurück: Ventile öffnen, ARS scharfschalten, Leitung laden. Führe die Rollfähigkeits-Prüfung (Nakat) mit Fahrstufe <span class="key-badge">X1</span> durch, um das automatische Zurückrollen (Protiwoskatywanije) zu sperren.</li>
+                    </ul>
+                `
+            },
+            "702": {
+                name: "Baureihe 81-702 (Typ D - Klassik)",
+                fully: `
+                    <h2>Fahrbetrieb mit historischer Technik (Powered-up)</h2>
+                    <p>Der Typ D ist der mechanischste Zug der Mod. Er verzeiht keine Unachtsamkeit an Signalen!</p>
+                    <ul>
+                        <li>Nimm Platz, stecke die Reversierkurbel mit <span class="key-badge">Shift + 0</span> ein und lege sie mit <span class="key-badge">0</span> nach vorne.</li>
+                        <li><strong>WICHTIGE SIGNALSICHERHEIT:</strong> Dieser Zug besitzt KEIN elektronisches ARS/ALS-System! Es gibt im Cockpit keine Tacho-Anzeige für Limits und keine Zwangsbremsungen – fahre strikt auf Sicht und beobachte die Tunnelsignale exakt per Auge!</li>
+                        <li><strong>WICHTIGE TŪRSICHERHEIT:</strong> Der Typ D besitzt keine Schaltung, die das Anfahren bei offenen Türen blockiert! Du kannst mit offenen Türen losrasen. Halte den VUD-Schalter zur Sicherheit deiner Fahrgäste stets verriegelt.</li>
+                        <li><strong>Bremsverhalten beachten:</strong> Auf niedrigen Geschwindigkeiten bricht die elektrische Rheostat-Bremse wirkungslos zusammen. Schalte kurz vor dem Stillstand das Pneumatik-Ventil oder den Ausgleichshebel hinzu, um nicht über das Stationsende hinauszuschießen.</li>
+                    </ul>
+                `,
+                depot: `<h2>Typ D Depot-Inbetriebnahme</h2><p>Die Prozedur läuft analog zum Nummerny ab, jedoch entfällt das Booten jeglicher Kabinen-Computer oder ARS-Kästen. Schalte die Batterie unter dem Fahrpult ein, lade die Leitungen pneumatisch und fahre den Zug manuell auf Sicht aus dem Depot. Kooperation mit einem Hilfsmaschinisten wird mangels automatischer Signal-Übermittlung dringend empfohlen.</p>`,
+                deadend: `<h2>Typ D Kehrgleis-Wende</h2><p>Vollbremsung einleiten. Kurbel in die Mitte stellen (<span class="key-badge">9</span>) und abziehen (<span class="key-badge">Shift + 7</span>). Da keine automatische Türüberwachung vorhanden ist, wirf vor dem Verlassen des Führerstands zwingend einen Kontrollblick aus dem Fenster, um sicherzugehen, dass alle Waggontüren mechanisch verriegelt sind.</p>`,
+                night: `<h2>Typ D Reaktivierung aus dem Stillstand</h2><p>Prüfe die Akkumulatoren der Zwischenwagen einzeln auf ausreichendespannung. Wandere durch den Zug und löse die mechanischen Handbrems-Spindelstangen händisch an den Radsätzen, da keine Kontrollleuchte im Führerstand ein Schleifen der Bremsbacken signalisiert.</p>`
+            },
+            "502": {
+                name: "Baureihe 81-502 (Ema-502)",
+                fully: `
+                    <h2>Fahrbetrieb mit St. Petersburger Technik</h2>
+                    <p>Die Baureihe Ема-502 wurde speziell für Linien mit Stationen des Typs "Horizontaler Lift" (Bahnsteigtüren) entwickelt.</p>
+                    <ul>
+                        <li>Setz dich ins Cockpit, stecke den Reverser ein (<span class="key-badge">Shift + 0</span>) und wähle Vorwärts (<span class="key-badge">0</span>).</li>
+                        <li>Schalte die Systeme СОСД, ВПР und УПО auf deiner Schaltkonsole ein.</li>
+                        <li><strong>WICHTIGER HINWEIS ZUR PEDALERIE (KVL-Modell):</strong> Die Premium-Varianten mit KVL-Automatik nutzen anstelle des Totmannknopfs ein modifiziertes Sicherheitspedal. Du musst die Kombination <span class="key-badge">Shift + Leertaste</span> permanent gedrückt halten! Lässt du das Pedal los, blockiert die Elektronik die Motoren augenblicklich und der Zug rollt antriebslos aus.</li>
+                        <li>Nutze den automatischen Ansager (УПО), da dieser das Timing für das synchrone Öffnen mit den Bahnhofs-Schiebetüren regelt.</li>
+                    </ul>
+                `,
+                depot: `<h2>Ema-502 Depot-Aufrüstung</h2><ul><li>Schalte in der Front den Batterie-Hauptschalter und den Hochspannungsautomaten (Автомат высоковольтных цепей) ein.</li><li>Reverser vorwärts (<span class="key-badge">0</span>), öffne die Türen links mit <span class="key-badge">A</span> zur Sichtkontrolle, ziehe den Schlüssel ab und verriegle den VUD (<span class="key-badge">V</span>).</li><li>Wandere nach hinten, aktiviere in jedem Zwischenwagen den Batterie- und Hochspannungsautomaten.</li><li>In der Heckkabine: VB und Hochspannungsautomat an, VPR und УПО zuschalten. Reverser vorwärts, öffne die Doppelzug-Hähne mit <span class="key-badge">Shift + L</span>, lade auf 5 Bar und teste die Bremsstufen.</li><li>Kehre nach vorne zurück, schalte ARS/ALS ein, nimm das Hallenkabel (Udočka) auf die 2. Achse des 2. Wagens und fahre mit gedrückter Sicherheitspedalerie (<span class="key-badge">Shift + Leertaste</span>) ins Freie.</li></ul>`,
+                deadend: `<h2>Ema-502 Wendevorgang</h2><p>Bremse den Zug am Bahnsteigende mit einer Vollbremsung ein. Trennhähne verriegeln, Reverser abziehen. Da der Zug für automatische Stations-Türen kalibriert ist, halte den Wendevorgang exakt im Takt der Intervalluhren, um die automatische Steuerung der Bahnsteig-Schiebetüren nicht zu desynchronisieren.</p>`,
+                night: `<h2>Ema-502 Strecken-Aufrüstung</h2><p>Bordspannung am Akku-Voltmeter verifizieren. Achte nach dem Aufpressen der Pneumatikleitungen darauf, das integrierte BARS/Aero-Sicherungssystem über den Kippschalter hinter der Fahrersitz-Konsole sauber hochzufahren, da Digitalsprünge in der KVL-Schaltung sonst Fehlströme im Automatikmodus erzeugen.</p>`
+            },
+            "720": {
+                name: "Baureihe 81-720 (Яуза)",
+                fully: `
+                    <h2>Digitaler Schnellstart (Powered-up state)</h2>
+                    <p>Die Яуза besitzt eine computergestützte Schaltzentrale. Der Kurbel-Kran steuert hierbei kaum noch Bremsdruck.</p>
+                    <ul>
+                        <li>Nimm Platz. Auf dem zentralen 'Витязь'-Display blinkt die Passwortabfrage.</li>
+                        <li>Gib über die Tastaturkombination <span class="key-badge">Alt + Numpad</span> das Standardpasswort <span class="key-badge">1234</span> ein.</li>
+                        <li>Stecke den Reverser ein (<span class="key-badge">Shift + 0</span>) und schalte auf Vorwärts (<span class="key-badge">0</span>).</li>
+                        <li>Navigiere am Bildschirm mit den Pfeiltasten ▲Скор и ▼Токи zum Menü "Номера вагонов", öffне ес mit 'Выб.', kontrolliere die Wagonanzahl und bestätige zwingend mit der Taste <span class="key-badge">Ввод</span> (Enter).</li>
+                        <li>Schalte auf der rechten Hilfskonsole (ПМВ) die Aggregate zu: Kompressor (MK), PSN, Salonbeleuchtung und die Lüftergruppen 1 & 2.</li>
+                        <li>Drücke die Taste <span class="key-badge">G</span>, um den elektronischen Schnellschalter (BV) einzulegen.</li>
+                        <li>Schalte am Bildschirm mit der Taste 'Витязь-2' in den Modus <strong>Двери</strong>, um die Türkreise freizugeben. Beschleunige mit <span class="key-badge">W</span>.</li>
+                    </ul>
+                `,
+                depot: `<h2>Яуза Depot-Inbetriebnahme</h2><p>Aktiviere den Batterie-Hauptschalter und ausnahmslos alle Automaten auf der 'Панели поездной защиты' (Sicherungswand). Überprüfe die Blei-Siegel am BARS-Blockierer und dem K-29 Notventil. Fahre den Витязь-Computer hoch (Code 1234), verwalte die Wagen-Nummern und teste die drei Stufen des elektronischen Reservetakt-Bremssystems (Резервный тормоз via <span class='key-badge'>Num 9</span>). Lege das Hochspannungsschutzrelais (BV) mit <span class='key-badge'>G</span> ein, melde die Udočka an und veralle die Halle mit maximal 5 km/h im KРУ-Notfahrmodus.</p>`,
+                deadend: `<h2>Яуза Kehrgleis-Automatik</h2><p>Bringe das Fahrzeug im Wendeabschnitt über den Fahrhebel zum Stehen. Schalte den Reservetank-Hebel auf Sperrung, fahre den Reverser auf Null und ziehe den Stift ab. Der Витязь-Computer speichert deine Routendaten permanent; melde dich nach dem Kabinenwechsel auf der Gegenseite einfach erneut mit dem Code 1234 an, um die bestehende Datenmatrix abzurufen.</p>`,
+                night: `<h2>Яуза Nachtabstellung erwägen</h2><p>Bringe das Fahrzeug an den Begrenzungsbalken. Aktiviere den permanenten Park-Sicherungsmodus am Bordcomputer. Schalte die Lüfter und Hilfsaggregate ab, schließe die Fenster und sichere den Evakuierungstrap an der rechten Cockpitseite. Deaktiviere die Batterien; die Bordelektronik speichert eventuelle Fehlermeldungen im permanenten Diagnosespeicher (Журнал ТУ-152 М) für die Folgeschicht.</p>`
+            },
+            "722": {
+                name: "Baureihe 81-722 \"Юбилейный\"",
+                fully: `
+                    <h2>Asynchroner Fahrbetrieb (Powered-up state)</h2>
+                    <p>Der Юбилейный nutzt ein hochmodernes, prozentual gesteuertes Schub- und Bremssystem via Zugnetzwerk.</p>
+                    <ul>
+                        <li>Setz dich auf den Fahrersitz. Melde dich am MFDU-Touchscreen über das Menü 'Маршрут/Машинист' an und drücke den Button 'Aktivieren' (leuchtet intensiv blau).</li>
+                        <li>Bestätige mit 'OK' und kehre mit 'Обратно' zum Hauptbildschirm zurück. Richte deine Route, Linie und Endstationen über die Funktionstasten <span class="key-badge">F1</span> und <span class="key-badge">F2</span> ein.</li>
+                        <li>Schalte den Reverser-Wahlhebel auf Vorwärts (<span class="key-badge">0</span>).</li>
+                        <li><strong>BARS-FEHLER BEHEBEN (WICHTIG):</strong> Falls im Display die rote Warnung 'Экстренное торможение БАРС' blinkt und Luft entweicht, schalte den Hebel kurz auf Null (<span class="key-badge">9</span>), schalte das ARS am Kippschalter einmal mit Aussetzzeit aus und wieder ein, und wähle erneut Vorwärts (<span class="key-badge">0</span>).</li>
+                        <li><strong>WICHTIGE FAHRBLOCKADE:</strong> Halte beim Anfahren zwingend die Sicherheits-Pedalerie (<span class="key-badge">Shift + Leertaste</span>) gedrückt, sonst verweigert der asynchrone Antrieb jegliche Traktion!</li>
+                        <li>Schubregelung: Der Hebel rastet digital. <span class="key-badge">W</span> kurz tippen für 20% Mindestschub (Raste X), halten für kontinuierliche Steigerung bis 100% (Raste +X). Bremsen mit <span class="key-badge">S</span>: Raste 'T' liefert 1,0 Bar Bremszylinderdruck; Raste '+T' liefert kraftvolle 1,7 Bar für den Präzisions-Halt am Stationsbalken.</li>
+                    </ul>
+                `,
+                depot: `<h2>Юбилейный Depot-Aufrüstung</h2><ul><li>Gehe in die Kabine und halte an der Rückwand den Taster <strong>Включение БС</strong> für 3-5 Sekunden gedrückt, bis die Systemrelais klacken und die Displays booten.</li><li>Schalte alle Sicherungsautomaten hoch. Aktiviere das Salonlicht und stelle die Salonventilation auf die Position <strong>АВТ</strong>.</li><li>Prüfe die Blei-Plomben an: ВРУ, der Not-Pedalüberbrückung, den BARS-Modusschaltern und dem RВТБ. Schalte ARS & ALS am Pult ein und quittiere das Signal über das Pedal.</li><li>Melde dich am Touchscreen an, aktiviere die Kabine (Blau-Leuchten), kalibriere das БМЦИК-01 Display für die Streckenfrequenzen und verlasse die Halle mit gedrücktem Pedal (<span class="key-badge">Shift + Leertaste</span>) bei exakt 20% Leistung.</li></ul>`,
+                deadend: `<h2>Юбилейный Kehrschleifen-Wende</h2><p>Bremse den Zug mit der Bremsstufe 'T' am Haltebalken ein. Schalte die Kabinenaktivierung am Touchscreen ab (Blau-Leuchten erlischt). Schalte den Fahrtrichtungsschalter auf Neutral und wandere durch die klimatisierten Gänge nach vorne. Das digitale Netzwerk überträgt deine Routenkonfiguration automatisch an das neue Spitzengehäuse.</p>`,
+                night: `<h2>Юбилейный Reaktivierung nach Nachtruhe</h2><p>Verfahre nach dem Einschalten des Bordnetzes streng nach der MFDU-Systemdiagnose. Sollten die Computer Fehlfunktionen in den asynchronen Wechselrichtern (Тяговый привод) anzeigen, leite über das Touch-Menü einen System-Reset ein, bevor du die mechanischen Parkbremsen über die pneumatische Lösetaste freigibst.</p>`
+            }
+        };
+
+        function getParam(param) {
+            return urlParams.get(param);
+        }
+
+        let currentTrain = getParam("train") || "717";
+        let currentState = getParam("state") || "fully";
+
+        if (!wikiData[currentTrain]) currentTrain = "717";
+        if (!wikiData[currentTrain][currentState]) currentState = "fully";
+
+        document.getElementById("current-train-name").innerText = wikiData[currentTrain].name;
+        document.getElementById("wiki-body").innerHTML = wikiData[currentTrain][currentState];
+
+        document.getElementById(`link-${currentTrain}`).querySelector('button').classList.add('active');
+        // BEHOBEN: tab-Variable im forEach korrigiert, um Visuals stabil zu schalten
+        document.getElementById(`tab-${currentState}`).querySelector('button').classList.add('active');
+
+        document.getElementById("tab-fully").href = `?train=${currentTrain}&state=fully`;
+        document.getElementById("tab-depot").href = `?train=${currentTrain}&state=depot`;
+        document.getElementById("tab-deadend").href = `?train=${currentTrain}&state=deadend`;
+        document.getElementById("tab-night").href = `?train=${currentTrain}&state=night`;
+
+        document.querySelectorAll('.nav-link').forEach(link => {
+            const tId = link.id.replace('link-', '');
+            link.href = `?train=${tId}&state=${currentState}`;
+        });
+    </script>
+</body>
+</html>
