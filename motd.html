@@ -17,8 +17,10 @@
             justify-content: center;
             align-items: center;
             padding: 25px;
+            --audio-bass: 0; /* Verknüpfung für die reaktiven Lichteffekte */
         }
 
+        /* 2008 GRAPHIC AURORA OVERLAY */
         .background-overlay {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -35,8 +37,11 @@
             background: radial-gradient(ellipse at 50% 0%, rgba(255, 255, 255, 0.5) 0%, rgba(0, 242, 254, 0.3) 45%, transparent 75%);
             transform: rotate(-4deg);
             z-index: -2;
+            /* Reagiert auf den Bass des neuen Media Players! */
+            opacity: calc(0.7 + (var(--audio-bass) * 0.3));
         }
 
+        /* PREMIUM AERO APPLICATION WINDOW */
         .wiki-window {
             width: 96vw;
             max-width: 1150px;
@@ -52,18 +57,22 @@
             overflow: hidden;
         }
 
+        /* SIDEBAR (Windows Vista Explorer Stil) */
         .wiki-sidebar {
-            width: 270px;
+            width: 290px;
             background: linear-gradient(to bottom, rgba(255,255,255,0.2) 0%, rgba(0,0,0,0.05) 100%);
             border-right: 1px solid rgba(255, 255, 255, 0.3);
             padding: 22px;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
+            gap: 15px;
             flex-shrink: 0;
+            overflow-y: auto;
         }
+        
+        .wiki-sidebar::-webkit-scrollbar { display: none; }
 
-        .sidebar-header { display: flex; align-items: center; gap: 10px; margin-bottom: 25px; }
+        .sidebar-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
         .metro-logo {
             width: 24px; height: 24px;
             background: linear-gradient(to bottom, #74c69d, #2d6a4f);
@@ -72,10 +81,9 @@
         }
         .sidebar-header h2 { font-size: 1.15rem; color: #ffffff; text-shadow: 0 1px 2px rgba(0,39,73,0.5); font-weight: 600; }
 
-        .nav-group { display: flex; flex-direction: column; gap: 8px; }
+        .nav-group { display: flex; flex-direction: column; gap: 8px; flex: 1; }
         .nav-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: #0284c7; font-weight: 800; margin-bottom: 4px; }
 
-        .nav-link { text-decoration: none; width: 100%; }
         .nav-btn {
             width: 100%; padding: 10px 15px; border: 1px solid rgba(255,255,255,0.4); border-radius: 10px;
             background: linear-gradient(to bottom, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.1) 100%);
@@ -92,8 +100,49 @@
             text-shadow: 0 1px 1px rgba(0,0,0,0.2);
         }
 
-        .sidebar-footer { font-size: 0.75rem; color: rgba(255,255,255,0.7); font-weight: 500; }
+        /* NEU: DER INTERAKTIVE MEDIA PLAYER GADGET */
+        .music-gadget {
+            background: linear-gradient(to bottom, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.2) 100%);
+            border: 1px solid rgba(255,255,255,0.7);
+            border-radius: 16px;
+            padding: 15px;
+            box-shadow: 0 8px 20px rgba(0,47,87,0.12), inset 0 1px 1px rgba(255,255,255,0.8);
+            margin-top: 10px;
+        }
+        
+        .music-info { 
+            background: linear-gradient(135deg, rgba(0, 140, 200, 0.08) 0%, rgba(0, 50, 150, 0.03) 100%);
+            padding: 8px; border-radius: 10px; border: 1px solid rgba(0,0,0,0.08); box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .music-title { font-size: 0.95rem; font-weight: 600; color: #005691; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .music-artist { font-size: 0.8rem; color: #475569; font-weight: 600; display: block; margin-bottom: 4px; }
+        #vis-canvas { width: 100%; height: 35px; background: rgba(0, 0, 0, 0.03); border-radius: 4px; }
 
+        /* Media Controls */
+        .music-controls {
+            display: flex; justify-content: center; align-items: center; gap: 12px; margin-top: 12px;
+        }
+        .ctrl-btn {
+            background: linear-gradient(to bottom, #ffffff 0%, #cbd5e1 100%);
+            border: 1px solid #94a3b8; border-radius: 50%;
+            width: 32px; height: 32px;
+            display: flex; justify-content: center; align-items: center;
+            cursor: pointer; color: #0f172a; font-size: 0.9rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1), inset 0 1px 0 #fff;
+            transition: all 0.15s ease;
+        }
+        .ctrl-btn:hover {
+            background: linear-gradient(to bottom, #00f2fe 0%, #0077b6 100%);
+            color: white; border-color: #0077b6; box-shadow: 0 0 10px rgba(0, 242, 254, 0.5);
+        }
+        .play-btn { width: 42px; height: 42px; font-size: 1.2rem; }
+
+        .music-progress-container { width: 100%; background: #cbd5e1; height: 6px; border-radius: 3px; overflow: hidden; margin-top: 12px; border: 1px solid #94a3b8; box-shadow: inset 0 1px 3px rgba(0,0,0,0.2); }
+        .music-progress-bar { height: 100%; width: 0%; background: linear-gradient(to bottom, #00f2fe, #0077b6); box-shadow: 0 0 8px rgba(0, 242, 254, 0.8); }
+
+        .sidebar-footer { font-size: 0.75rem; color: rgba(255,255,255,0.7); font-weight: 500; text-align: center; margin-top: 10px; }
+
+        /* CONTENT MONITOR */
         .wiki-content { flex: 1; display: flex; flex-direction: column; background: rgba(255,255,255,0.1); overflow: hidden; }
 
         .content-header {
@@ -104,8 +153,8 @@
         }
         .content-header h1 { font-size: 1.55rem; color: #004475; font-weight: 600; text-shadow: 0 1px 0 rgba(255,255,255,0.5); }
 
+        /* SUBPAGE TABS */
         .state-tabs { display: flex; gap: 6px; }
-        .state-link { text-decoration: none; }
         .state-tab {
             padding: 9px 15px; border: 1px solid rgba(255,255,255,0.5); border-radius: 8px 8px 0 0;
             background: linear-gradient(to bottom, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.05) 100%);
@@ -118,6 +167,7 @@
             position: relative; z-index: 2;
         }
 
+        /* ARTICLE BODY */
         .content-body {
             flex: 1; padding: 25px; overflow-y: auto;
             background: linear-gradient(to bottom, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.05) 100%);
@@ -125,10 +175,7 @@
 
         .content-body::-webkit-scrollbar { width: 8px; }
         .content-body::-webkit-scrollbar-track { background: rgba(0,0,0,0.03); border-radius: 4px; }
-        .content-body::-webkit-scrollbar-thumb {
-            background: linear-gradient(to right, #38bdf8, #0284c7); border-radius: 4px;
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.3);
-        }
+        .content-body::-webkit-scrollbar-thumb { background: linear-gradient(to right, #38bdf8, #0284c7); border-radius: 4px; box-shadow: inset 0 1px 0 rgba(255,255,255,0.3); }
 
         .content-body h2 { font-size: 1.35rem; color: #003e6b; margin-bottom: 8px; font-weight: 600; border-bottom: 1px solid rgba(0,0,0,0.08); padding-bottom: 5px; }
         .content-body h3 { font-size: 1.1rem; color: #0284c7; margin: 14px 0 6px 0; font-weight: 600; }
@@ -185,17 +232,33 @@
             
             <div class="nav-group">
                 <span class="nav-label">Fahrzeugflotte</span>
-                <a class="nav-link" href="?train=710" id="link-710"><button class="nav-btn">Ezh3 (81-710)</button></a>
-                <a class="nav-link" href="?train=717" id="link-717"><button class="nav-btn">81-717 Номерной</button></a>
-                <a class="nav-link" href="?train=702" id="link-702"><button class="nav-btn">81-702 Typ D</button></a>
-                <a class="nav-link" href="?train=502" id="link-502"><button class="nav-btn">81-502 Ema-502</button></a>
-                <a class="nav-link" href="?train=720" id="link-720"><button class="nav-btn">81-720 Яуза</button></a>
-                <a class="nav-link" href="?train=722" id="link-722"><button class="nav-btn">81-722 Юбилейный</button></a>
+                <button class="nav-btn" id="btn-710" onclick="navigate('710', currentState, event)">Ezh3 (81-710)</button>
+                <button class="nav-btn" id="btn-717" onclick="navigate('717', currentState, event)">81-717 Номерной</button>
+                <button class="nav-btn" id="btn-702" onclick="navigate('702', currentState, event)">81-702 Typ D</button>
+                <button class="nav-btn" id="btn-502" onclick="navigate('502', currentState, event)">81-502 Ema-502</button>
+                <button class="nav-btn" id="btn-720" onclick="navigate('720', currentState, event)">81-720 Яуза</button>
+                <button class="nav-btn" id="btn-722" onclick="navigate('722', currentState, event)">81-722 Юбилейный</button>
+            </div>
+
+            <div class="sidebar-gadget music-gadget">
+                <span class="gadget-label">Aero Media Player</span>
+                <div class="music-info">
+                    <span class="music-title" id="track-title">Bereit</span>
+                    <span class="music-artist" id="track-artist">Wähle Play zum Starten</span>
+                    <canvas id="vis-canvas" width="220" height="35"></canvas>
+                </div>
+                <div class="music-controls">
+                    <button class="ctrl-btn" onclick="prevTrack()" title="Vorheriger Track">⏮</button>
+                    <button class="ctrl-btn play-btn" id="play-pause-btn" onclick="togglePlay()" title="Play/Pause">▶</button>
+                    <button class="ctrl-btn" onclick="nextTrack()" title="Nächster Track">⏭</button>
+                </div>
+                <div class="music-progress-container">
+                    <div class="music-progress-bar" id="track-progress"></div>
+                </div>
             </div>
 
             <div class="sidebar-footer">
-                <p>ULX MOTD Portal</p>
-                <p>Engine: Hard Sub-Routing</p>
+                <p>ULX MOTD Portal • Asynchrones Routing</p>
             </div>
         </div>
 
@@ -203,10 +266,10 @@
             <div class="content-header">
                 <h1 id="current-train-name">Baureihe Laden...</h1>
                 <div class="state-tabs">
-                    <a class="state-link" href="" id="tab-depot"><button class="state-tab">Kaltstart (Depot)</button></a>
-                    <a class="state-link" href="" id="tab-deadend"><button class="state-tab">Wendeanlage</button></a>
-                    <a class="state-link" href="" id="tab-night"><button class="state-tab">Nach Nachtabstellung</button></a>
-                    <a class="state-link" href="" id="tab-facts"><button class="state-tab">Fahrhinweise</button></a>
+                    <button class="state-tab" id="tab-depot" onclick="navigate(currentTrain, 'depot', event)">Kaltstart (Depot)</button>
+                    <button class="state-tab" id="tab-deadend" onclick="navigate(currentTrain, 'deadend', event)">Wendeanlage</button>
+                    <button class="state-tab" id="tab-night" onclick="navigate(currentTrain, 'night', event)">Nach Nachtabstellung</button>
+                    <button class="state-tab" id="tab-facts" onclick="navigate(currentTrain, 'facts', event)">Fahrhinweise</button>
                 </div>
             </div>
 
@@ -215,10 +278,12 @@
         </div>
     </div>
 
-    <script>
-        const urlParams = new URLSearchParams(window.location.search);
+    <audio id="motd-music"></audio>
 
-        // Das 100% textakkurate Datenmodell
+    <script>
+        // ==========================================
+        // 1. OFFIZIELLE WIKI-DATENMATRIX
+        // ==========================================
         const wikiData = {
             "710": {
                 name: "Baureihe Ezh3 (81-710)",
@@ -283,23 +348,11 @@
                         <li>In Frontkabine Batterie an, <span class="key-badge">Возврат РП</span> für 2-3 Sek drücken. Türen schließen.</li>
                         <li>Außen am Zug <strong>ГВ</strong> einschalten. Rote Rücklichter prüfen. Heckkabinen-Test durchführen.</li>
                         <li>In Frontkabine: ARS an (Lampen leuchten, Klingel ertönt), Pedale (<span class="key-badge">Leertaste</span>) drücken. Bremsen in <span class="key-badge">Т1</span>, <span class="key-badge">Т1А</span>, <span class="key-badge">Т2</span> testen.</li>
-                        <li>Hochspannung anfordern. Reverser vor, ARS an, Pedale drücken. Ausfahrt bis Schild "STOP" mit max. 5 km/h. Udočka trennen lassen, Kompressoren und Licht an.</li>
+                        <li>Hochspannung anfordern. Reverser vor, ARS an, Pedale drücken. Ausfahrt mit Udočka bis Schild "STOP" bei max. 5 km/h. Udočka trennen lassen, Kompressoren und Licht an.</li>
                     </ul>
                 `,
-                deadend: `
-                    <div class="error-box">
-                        <h3>Kein Systemprotokoll gefunden</h3>
-                        <p>Das offizielle Wiki enthält für die Baureihe 81-717 keine dokumentierte Prozedur für die Wendeanlage.</p>
-                        <p style="margin-top: 10px; font-size: 0.9em; opacity: 0.8;">Bitte orientieren Sie sich an der Prozedur der Baureihe Ezh3 (81-710).</p>
-                    </div>
-                `,
-                night: `
-                    <div class="error-box">
-                        <h3>Kein Systemprotokoll gefunden</h3>
-                        <p>Das offizielle Wiki enthält für die Baureihe 81-717 keine dokumentierte Prozedur für die Nachtabstellung.</p>
-                        <p style="margin-top: 10px; font-size: 0.9em; opacity: 0.8;">Bitte orientieren Sie sich an der Prozedur der Baureihe Ezh3 (81-710).</p>
-                    </div>
-                `,
+                deadend: `<div class="error-box"><h3>Kein Systemprotokoll gefunden</h3><p>Das offizielle Wiki enthält für die Baureihe 81-717 keine dokumentierte Prozedur für die Wendeanlage.</p><p style="margin-top: 10px; font-size: 0.9em; opacity: 0.8;">Bitte orientieren Sie sich an der Prozedur der Baureihe Ezh3 (81-710).</p></div>`,
+                night: `<div class="error-box"><h3>Kein Systemprotokoll gefunden</h3><p>Das offizielle Wiki enthält für die Baureihe 81-717 keine dokumentierte Prozedur für die Nachtabstellung.</p><p style="margin-top: 10px; font-size: 0.9em; opacity: 0.8;">Bitte orientieren Sie sich an der Prozedur der Baureihe Ezh3 (81-710).</p></div>`,
                 facts: `
                     <h2>Wissenswertes (81-717)</h2>
                     <p>81-717/714 ist der verbreitetste Waggontyp im postsowjetischen Raum. "Номерной" (Der Nummerierte) heißt er, weil es der erste Waggon ohne Buchstaben-Kennung (wie A, B, E, D) war.</p>
@@ -309,30 +362,14 @@
             },
             "702": {
                 name: "Baureihe 81-702 (Typ D)",
-                depot: `
-                    <div class="error-box">
-                        <h3>Kein Systemprotokoll gefunden</h3>
-                        <p>Das offizielle Wiki enthält für den Typ D keine dokumentierte Prozedur für den Kaltstart.</p>
-                        <p style="margin-top: 10px; font-size: 0.9em; opacity: 0.8;">Bitte orientieren Sie sich an der Prozedur der Baureihe Ezh3 oder 81-717.</p>
-                    </div>
-                `,
-                deadend: `
-                    <div class="error-box">
-                        <h3>Kein Systemprotokoll gefunden</h3>
-                        <p>Das offizielle Wiki enthält für den Typ D keine dokumentierte Prozedur für die Wendeanlage.</p>
-                    </div>
-                `,
-                night: `
-                    <div class="error-box">
-                        <h3>Kein Systemprotokoll gefunden</h3>
-                        <p>Das offizielle Wiki enthält für den Typ D keine dokumentierte Prozedur für die Nachtabstellung.</p>
-                    </div>
-                `,
+                depot: `<div class="error-box"><h3>Kein Systemprotokoll gefunden</h3><p>Das offizielle Wiki enthält für den Typ D keine dokumentierte Prozedur für den Kaltstart.</p></div>`,
+                deadend: `<div class="error-box"><h3>Kein Systemprotokoll gefunden</h3><p>Das offizielle Wiki enthält für den Typ D keine dokumentierte Prozedur für die Wendeanlage.</p></div>`,
+                night: `<div class="error-box"><h3>Kein Systemprotokoll gefunden</h3><p>Das offizielle Wiki enthält für den Typ D keine dokumentierte Prozedur für die Nachtabstellung.</p></div>`,
                 facts: `
                     <h2>Интересные факты (Fahrhinweise für Typ D)</h2>
                     <div class="info-warning">Achtung: Dies ist der älteste Zug in Metrostroi. Es gibt kein ARS/ALS. Fahren Sie streng auf Sicht!</div>
                     <ul>
-                        <li>Der Waggon ist in der Steuerung sehr einfach und daher (laut Wiki) "für Anfänger geeignet".</li>
+                        <li>Der Waggon ist in der Steuerung очень прост und daher "für Anfänger geeignet".</li>
                         <li>Da keine elektronischen Sicherheitssysteme (ARS) verbaut sind, wird das Fahren mit einem Hilfsmaschinisten empfohlen.</li>
                         <li><strong>Bremsung:</strong> Bei niedrigen Geschwindigkeiten ist die elektrische Bremse ineffektiv. Nutzen Sie das Ventil oder die pneumatische Bremse gepaart mit der elektrischen!</li>
                         <li><strong>Tür-Sicherung:</strong> Dieser Zug hat KEINE Einrichtung, die das Fahren mit offenen Türen blockiert. Es wird empfohlen, mit verriegeltem ВУД (VUD) zu fahren.</li>
@@ -357,18 +394,8 @@
                         <li><strong>Achtung auf KVL Zügen:</strong> Vor dem Anfahren muss die Sicherheitspedale (<span class="key-badge">Shift + Leertaste</span>) gehalten werden!</li>
                     </ul>
                 `,
-                deadend: `
-                    <div class="error-box">
-                        <h3>Kein Systemprotokoll gefunden</h3>
-                        <p>Das offizielle Wiki enthält für die Baureihe 81-502 keine dokumentierte Prozedur für die Wendeanlage.</p>
-                    </div>
-                `,
-                night: `
-                    <div class="error-box">
-                        <h3>Kein Systemprotokoll gefunden</h3>
-                        <p>Das offizielle Wiki enthält für die Baureihe 81-502 keine dokumentierte Prozedur für die Nachtabstellung.</p>
-                    </div>
-                `,
+                deadend: `<div class="error-box"><h3>Kein Systemprotokoll gefunden</h3><p>Das offizielle Wiki enthält für die Baureihe 81-502 keine dokumentierte Prozedur für die Wendeanlage.</p></div>`,
+                night: `<div class="error-box"><h3>Kein Systemprotokoll gefunden</h3><p>Das offizielle Wiki enthält für die Baureihe 81-502 keine dokumentierte Prozedur für die Nachtabstellung.</p></div>`,
                 facts: `
                     <h2>Interessante Fakten (Ema-502)</h2>
                     <ul>
@@ -385,7 +412,7 @@
                     <h2>Запуск состава (Depot-Start)</h2>
                     <p>Startvorgang für das digitale Fahrzeug "Yauza".</p>
                     <ul>
-                        <li>In der Kopfkabine <strong>Выключатель батарей</strong> einschalten, sowie ALLE Automaten auf dem Panel der Zugsicherung (Панель поездной защиты).</li>
+                        <li>In der Kopfkabine <strong>Выключатель батарей</strong> einschalten, sowie ALLE Automaten на Панели поездной защиты.</li>
                         <li>Prüfen der Plomben am BARS-Blockierer, den Kappen für KAH und ALS, sowie dem Hahn РВТБ.</li>
                         <li>In Zwischenwagen ВБ einschalten. In Heckkabine Manipulationen wiederholen.</li>
                         <li>In Frontkabine auf dem "Vityaz"-Panel das Passwort <strong>1234</strong> eingeben (via <span class="key-badge">Alt + Numpad</span>).</li>
@@ -398,22 +425,12 @@
                         <li>Außen am Zug <strong>ГВ</strong> aktivieren (links und rechts). Hochspannung anfordern und vorsichtig aus dem Depot fahren.</li>
                     </ul>
                 `,
-                deadend: `
-                    <div class="error-box">
-                        <h3>Kein Systemprotokoll gefunden</h3>
-                        <p>Das offizielle Wiki enthält für die Baureihe 81-720 keine dokumentierte Prozedur für die Wendeanlage.</p>
-                    </div>
-                `,
-                night: `
-                    <div class="error-box">
-                        <h3>Kein Systemprotokoll gefunden</h3>
-                        <p>Das offizielle Wiki enthält für die Baureihe 81-720 keine dokumentierte Prozedur für die Nachtabstellung.</p>
-                    </div>
-                `,
+                deadend: `<div class="error-box"><h3>Kein Systemprotokoll gefunden</h3><p>Das offizielle Wiki enthält für die Baureihe 81-720 keine dokumentierte Prozedur für die Wendeanlage.</p></div>`,
+                night: `<div class="error-box"><h3>Kein Systemprotokoll gefunden</h3><p>Das offizielle Wiki enthält für die Baureihe 81-720 keine dokumentierte Prozedur für die Nachtabstellung.</p></div>`,
                 facts: `
                     <h2>Fakten zur Yauza (81-720)</h2>
-                    <p>Karosserie aus rostfreiem Stahl. Die Yauza wurde ab 1987 als Zug der neuen Generation konzipiert. Der 81-740 "Rusich" ist eine direkte Weiterentwicklung der Yauza.</p>
-                    <p>Der Führerstand ist asymmetrisch nach links versetzt, um rechts eine Notfall-Treppe in den Tunnel zu ermöglichen. Das Kurbel-Ventil steuert den Zug fast gar nicht mehr, alles läuft über das "Vityaz" Digitalsystem.</p>
+                    <p>Кузов выполнен из нержавеющей стали. Die Yauza wurde ab 1987 als Zug der neuen Generation konzipiert. Der 81-740 "Rusich" ist eine direkte Weiterentwicklung der Yauza.</p>
+                    <p>Der Führerstand ist asymmetrisch nach links versetzt, um rechts eine Notfall-Treppe in den Tunnel zu ermöglichen. Das Kurbel-Ventil steuert den Zug fast gar не больше, alles läuft über das "Vityaz" Digitalsystem.</p>
                 `
             },
             "722": {
@@ -434,54 +451,203 @@
                         <li>Sicherheitspedale gedrückt halten! Ustavka auf 20% stellen und mit max 5 km/h bis zum STOP-Schild fahren.</li>
                     </ul>
                 `,
-                deadend: `
-                    <div class="error-box">
-                        <h3>Kein Systemprotokoll gefunden</h3>
-                        <p>Das offizielle Wiki enthält für die Baureihe 81-722 keine dokumentierte Prozedur für die Wendeanlage.</p>
-                    </div>
-                `,
-                night: `
-                    <div class="error-box">
-                        <h3>Kein Systemprotokoll gefunden</h3>
-                        <p>Das offizielle Wiki enthält für die Baureihe 81-722 keine dokumentierte Prozedur für die Nachtabstellung.</p>
-                    </div>
-                `,
+                deadend: `<div class="error-box"><h3>Kein Systemprotokoll gefunden</h3><p>Das offizielle Wiki enthält für die Baureihe 81-722 keine dokumentierte Prozedur für die Wendeanlage.</p></div>`,
+                night: `<div class="error-box"><h3>Kein Systemprotokoll gefunden</h3><p>Das offizielle Wiki enthält für die Baureihe 81-722 keine dokumentierte Prozedur für die Nachtabstellung.</p></div>`,
                 facts: `
                     <h2>Der moderne Fahrhebel (81-722)</h2>
                     <div class="info-warning">Dieser Zug nutzt eine prozentuale Schubsteuerung (0-100% in 10% Schritten).</div>
                     <ul>
                         <li><strong>Pos "X":</strong> Feste Position. Der Zug wendet dauerhaft mindestens 20% Schub an.</li>
-                        <li><strong>Pos "+X":</strong> Unfeste Position (gefedert). Der Schub steigt kontinuierlich bis 100% an, solange der Hebel gehalten wird. Lässt man ihn los, fällt er auf "X" zurück und der aktuelle Schub-Prozentsatz wird eingefroren.</li>
-                        <li><strong>Pos "T" und "+T":</strong> Gleiches Prinzip für die Bremse. "T" fixiert die Bremskraft bei mind. 20% (bzw. 1 atm Bremszylinderdruck). "+T" steigert die Bremskraft stufenlos bis 100% (bzw. 1.7 atm Druck im Zylinder).</li>
-                        <li><strong>Pos "Э":</strong> Notbremse. Annulierung aller Schubvorgaben, volle Zwangsbremsung.</li>
+                        <li><strong>Pos "+X":</strong> Unfeste Position (gefedert). Der Schub steigt постепенно до 100%, solange der Hebel gehalten wird. Lässt man ihn los, fällt er auf "X" zurück und die aktuelle Schub-Menge wird eingefroren.</li>
+                        <li><strong>Pos "T" и "+T":</strong> Gleiches Prinzip für die Bremse. "T" fixiert die Bremskraft bei mind. 20% (1 atm in Zylindern). "+T" steigert die Bremskraft stufenlos bis 100% (1.7 atm).</li>
+                        <li><strong>Pos "Э":</strong> Notbremse. Annulierung aller Schubvorgaben, volle Zwangsbremsung auf allen Waggons.</li>
                     </ul>
                 `
             }
         };
 
-        function getParam(param) { return urlParams.get(param); }
-
-        let currentTrain = getParam("train") || "710";
-        let currentState = getParam("state") || "depot";
+        // ==========================================
+        // 2. ASYNCHRONES NAVIGATIONSSYSTEM
+        // ==========================================
+        const urlParams = new URLSearchParams(window.location.search);
+        let currentTrain = urlParams.get("train") || "710";
+        let currentState = urlParams.get("state") || "depot";
 
         if (!wikiData[currentTrain]) currentTrain = "710";
         if (!wikiData[currentTrain][currentState]) currentState = "depot";
 
-        document.getElementById("current-train-name").innerText = wikiData[currentTrain].name;
-        document.getElementById("wiki-body").innerHTML = wikiData[currentTrain][currentState];
+        function updateDOM() {
+            document.getElementById("current-train-name").innerText = wikiData[currentTrain].name;
+            document.getElementById("wiki-body").innerHTML = wikiData[currentTrain][currentState];
 
-        document.getElementById(`link-${currentTrain}`).querySelector('button').classList.add('active');
-        document.getElementById(`tab-${currentState}`).querySelector('button').classList.add('active');
+            document.querySelectorAll('.nav-btn, .state-tab').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`btn-${currentTrain}`).classList.add('active');
+            document.getElementById(`tab-${currentState}`).classList.add('active');
+        }
 
-        document.getElementById("tab-depot").href = `?train=${currentTrain}&state=depot`;
-        document.getElementById("tab-deadend").href = `?train=${currentTrain}&state=deadend`;
-        document.getElementById("tab-night").href = `?train=${currentTrain}&state=night`;
-        document.getElementById("tab-facts").href = `?train=${currentTrain}&state=facts`;
+        // Fängt den Klick ab, ändert URL ohne Neuladen
+        function navigate(tId, sId, event) {
+            if(event) event.preventDefault();
+            currentTrain = tId;
+            currentState = sId;
+            updateDOM();
+            
+            const newUrl = `?train=${currentTrain}&state=${currentState}`;
+            window.history.pushState({train: currentTrain, state: currentState}, '', newUrl);
+        }
 
-        document.querySelectorAll('.nav-link').forEach(link => {
-            const tId = link.id.replace('link-', '');
-            link.href = `?train=${tId}&state=${currentState}`;
+        window.addEventListener('popstate', (event) => {
+            if(event.state) {
+                currentTrain = event.state.train;
+                currentState = event.state.state;
+                updateDOM();
+            }
         });
+
+        updateDOM();
+
+        // ==========================================
+        // 3. ECHTER WEB AUDIO API MEDIA PLAYER
+        // ==========================================
+        const playlist = [
+            { path: "music/kate.mp3", title: "Kate", artist: "Solar Fields" },
+            { path: "music/still-alive.mp3", title: "Still Alive", artist: "Lisa Miskovsky / Solar Fields" },
+            { path: "music/heat.mp3", title: "Heat", artist: "Solar Fields" },
+            { path: "music/menu-theme.mp3", title: "Menu Theme", artist: "Solar Fields" }
+        ];
+
+        const audio = document.getElementById("motd-music");
+        audio.crossOrigin = "anonymous"; // Erlaubt das Verarbeiten der Frequenzen!
+        
+        let currentTrackIndex = 0;
+        let audioCtx, analyser, source, bufferLength, dataArray;
+        let isAudioSetup = false;
+        
+        // Speicher für weiches Absinken der Balken bei Pause
+        let smoothData = new Array(32).fill(0);
+
+        function initAudioReactor() {
+            if (isAudioSetup) return;
+            try {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                analyser = audioCtx.createAnalyser();
+                source = audioCtx.createMediaElementSource(audio);
+                source.connect(analyser);
+                analyser.connect(audioCtx.destination);
+                analyser.fftSize = 64; // Produziert genau 32 saubere Balken
+                bufferLength = analyser.frequencyBinCount;
+                dataArray = new Uint8Array(bufferLength);
+                isAudioSetup = true;
+                renderRealReaction();
+            } catch(e) {
+                console.log("Audio API konnte nicht aufgebaut werden.", e);
+            }
+        }
+
+        // Sicherstellen, dass die Audio-Engine hochfährt, wenn der User interagiert
+        function ensureAudioContext() {
+            if (!isAudioSetup) {
+                initAudioReactor();
+            } else if (audioCtx && audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function loadTrack(index) {
+            const song = playlist[index];
+            document.getElementById("track-title").innerText = song.title;
+            document.getElementById("track-artist").innerText = song.artist;
+            audio.src = song.path;
+            audio.volume = 0.15;
+            document.getElementById("track-progress").style.width = "0%";
+        }
+
+        function togglePlay() {
+            ensureAudioContext();
+            const btn = document.getElementById("play-pause-btn");
+            if (audio.paused) {
+                audio.play();
+                btn.innerText = "⏸";
+            } else {
+                audio.pause();
+                btn.innerText = "▶";
+            }
+        }
+
+        function nextTrack() {
+            ensureAudioContext();
+            currentTrackIndex = (currentTrackIndex + 1) % playlist.length;
+            loadTrack(currentTrackIndex);
+            if (!audio.paused || document.getElementById("play-pause-btn").innerText === "⏸") {
+                audio.play();
+            }
+        }
+
+        function prevTrack() {
+            ensureAudioContext();
+            currentTrackIndex = (currentTrackIndex - 1 + playlist.length) % playlist.length;
+            loadTrack(currentTrackIndex);
+            if (!audio.paused || document.getElementById("play-pause-btn").innerText === "⏸") {
+                audio.play();
+            }
+        }
+
+        audio.addEventListener('timeupdate', function() {
+            if (audio.duration) {
+                document.getElementById("track-progress").style.width = ((audio.currentTime / audio.duration) * 100) + "%";
+            }
+        });
+
+        audio.addEventListener('ended', nextTrack);
+
+        // DIE ECHTE REAKTIVE BERECHNUNG
+        function renderRealReaction() {
+            requestAnimationFrame(renderRealReaction);
+            if (!isAudioSetup) return;
+
+            // Frequenz holen, wenn Musik läuft
+            if (!audio.paused && audioCtx.state === 'running') {
+                analyser.getByteFrequencyData(dataArray);
+            } else {
+                // Bei Pause künstlich nullen, damit der Falloff greift
+                for(let i=0; i<bufferLength; i++) dataArray[i] = 0;
+            }
+
+            let bass = 0;
+            const canvas = document.getElementById("vis-canvas");
+            if(!canvas) return;
+            const ctx = canvas.getContext("2d");
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            let barWidth = (canvas.width / bufferLength) * 1.4;
+            let x = 0;
+
+            for(let i = 0; i < bufferLength; i++) {
+                // Smooth Falloff berechnen (Weiches Fallen & Steigen)
+                smoothData[i] += (dataArray[i] - smoothData[i]) * 0.2;
+
+                if(i < 4) bass += smoothData[i];
+
+                let barHeight = (smoothData[i] / 255) * canvas.height;
+                let grad = ctx.createLinearGradient(0, canvas.height, 0, canvas.height - barHeight);
+                grad.addColorStop(0, 'rgba(0, 119, 182, 0.8)');
+                grad.addColorStop(0.6, 'rgba(0, 242, 254, 0.9)');
+                grad.addColorStop(1, 'rgba(255, 255, 255, 0.9)');
+
+                // Wenn pausiert, wird das Glas matt
+                ctx.fillStyle = audio.paused ? 'rgba(255,255,255,0.3)' : grad;
+                ctx.fillRect(x, canvas.height - barHeight, barWidth - 3, barHeight);
+                x += barWidth;
+            }
+
+            // Bass auf Skala von 0.0 bis 1.0 mappen und ans CSS schicken
+            bass = bass / 4;
+            document.body.style.setProperty('--audio-bass', (bass / 255));
+        }
+
+        // Initialisierung (ohne Autoplay)
+        loadTrack(currentTrackIndex);
+
     </script>
 </body>
 </html>
