@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <title>Metrostroi Transit Authority - OS Dashboard</title>
+    <title>Metrostroi Transit Authority - Control Center</title>
     <link rel="icon" href="data:;base64,iVBORw0KGgo=">
     <link rel="stylesheet" href="style.css">
 </head>
@@ -23,7 +23,7 @@
         <div class="app-header">
             <div class="app-title-group">
                 <div class="app-icon"></div>
-                <span class="app-title-text">Metrostroi Systemkonfiguration & Infocenter</span>
+                <span class="app-title-text">Metrostroi Systemkonfiguration & Inbetriebnahme</span>
             </div>
             <div class="window-controls">
                 <div class="win-btn win-min"></div>
@@ -52,8 +52,8 @@
                 <div class="sidebar-gadget music-gadget">
                     <span class="gadget-label">Aero Media Player</span>
                     <div class="music-info">
-                        <span class="music-title" id="track-title">Warte...</span>
-                        <span class="music-artist" id="track-artist">Solar Fields</span>
+                        <span class="music-title" id="track-title">Lade Titel...</span>
+                        <span class="music-artist" id="track-artist">System</span>
                         <canvas id="vis-canvas" width="220" height="35"></canvas>
                     </div>
                     <div class="music-progress-container">
@@ -70,11 +70,11 @@
                         </div>
                         <div class="diag-row">
                             <span class="diag-label">Signalsystem:</span>
-                            <span class="diag-value" style="color: #38b000; font-weight: bold;">ALS-ARS READY</span>
+                            <span class="diag-value" style="color: #38b000; font-weight: bold;">DEPOT-SYNC</span>
                         </div>
                         <div class="diag-row">
                             <span class="diag-label">Daten-Pool:</span>
-                            <span class="diag-value">Wiki Sync v3</span>
+                            <span class="diag-value">Wiki Strict v4</span>
                         </div>
                     </div>
                 </div>
@@ -87,55 +87,71 @@
                 <div class="progress-bar" id="load-progress"></div>
             </div>
             <div class="status-layout">
-                <div id="status-text">Systeme werden initialisiert...</div>
-                <div id="current-file">Verbindung wird aufgebaut...</div>
+                <div id="status-text">Garry's Mod Ressourcen werden abgeglichen...</div>
+                <div id="current-file">Warte auf Server-Handshake...</div>
             </div>
         </div>
 
     </div>
 
+    <audio id="loading-music"></audio>
+
     <script>
-        // 1. GMOD PARAMETER ABGREIFEN
+        // Gmod Parameter abgreifen
         const urlParams = new URLSearchParams(window.location.search);
         const mapName = urlParams.get('mapname');
         if (mapName) document.getElementById('map-name').innerText = mapName;
 
-        // 2. ERWEITERTER POOL MIT TRAIN STATES (Akkurate Prozeduren aus deinen Wiki-Quelltexten)
+        // ----------------------------------------------------
+        // FAKTENBASIERTER TRAIN POOL (STRICT WIKI DATA)
+        // ----------------------------------------------------
         const trainPool = [
+            {
+                title: "Baureihe Ezh3 (81-710)",
+                state: "Kaltstart im Betriebshof",
+                difficulty: "Schwer",
+                diffColor: "#ef4444",
+                steps: [
+                    { title: "Netz & Kontrolle", desc: "Überprüfen, dass kein 825V anliegt und die Udočka vom Stromabnehmer getrennt ist. In Frontkabine: Absperrhähne (НМ/ТМ) öffnen, Druck prüfen (TM 5.0-5.2 atm, NM ≥ 6 atm)." },
+                    { title: "Systeme booten", desc: "Batterie und Automat АВ-8А einschalten. Funkgerät einschalten. Reverser vorwärts. Vollbremsung einleiten, Hähne schließen, Bremsventil auf Pos I, Reverser abziehen." },
+                    { title: "Wagen-Check", desc: "Durch den Zug gehen: Batterien und АВ-8А in jedem Wagen zuschalten. In Heckkabine: Batterie an, Hähne auf, Bremsventil Pos II. Reverser vor, ARS an, Klingel abwarten, EPK-Kran auf." },
+                    { title: "Abfahrt", desc: "In Frontkabine: Hähne auf, Pos II. ARS an, Reverser vor. GV einschalten. Nach Udočka-Anschluss mit 'Ход-1' anrollen und max. 5 km/h fahren." }
+                ]
+            },
             {
                 title: "Baureihe 81-717 (Номерной)",
                 state: "Kaltstart im Betriebshof",
                 difficulty: "Schwer",
                 diffColor: "#ef4444",
                 steps: [
-                    { title: "Batterien & Hauptautomaten", desc: "Schalte an der Cockpit-Rückwand die Automaten <span class='key-badge'>A49</span>, <span class='key-badge'>A53</span> und <span class='key-badge'>AP-63</span> hoch[cite: 16]. Aktiviere darunter den Batterie-Hauptschalter (Spannung ≥62 V prüfen)[cite: 15, 16]." },
-                    { title: "Sicherungskontrolle", desc: "Schalte den Funk-Verstärker (УНЧ) und den Radioansager ein[cite: 16]. Kontrolliere das Vorhandensein der Sicherheitsplomben an <span class='key-badge'>UAVA</span> und <span class='key-badge'>ARS-RC</span>[cite: 17, 18]." },
-                    { title: "Pneumatik-Handshake", desc: "Öffne das Absperrventil mit <span class='key-badge'>Shift + L</span> (blauer Hebel springt hoch)[cite: 19]. Bringe das rote Bremsventil in Fahrtstellung (<span class='key-badge'>Num 2</span>) und lade die Leitung auf 5 Bar auf[cite: 19]." },
-                    { title: "Hochspannung zuschalten", desc: "Schalte außen am Zug den Trennschalter <span class='key-badge'>GV</span> ein[cite: 21]. Verbinde das Hallen-Stromkabel (Udočka) mit dem Stromabnehmer des 2. Wagens, um 825V aufzuschalten[cite: 15, 26]." }
+                    { title: "Zentralelektrik", desc: "Sicherstellen, dass der Zug von Hochspannung getrennt ist. In Frontkabine Batterie (≥62 V), АР-63, А-53, А-49, УНЧ, Funk und Ansager einschalten." },
+                    { title: "Luftleitung & ASNP", desc: "ASNP einrichten und Signaltaste testen. Rast-Hahn öffnen (Num 0), Bremsventil auf Pos 2, auf 5 Bar laden. Vollbremsung, Hahn zu, Batterie aus." },
+                    { title: "Rundgang & Heck", desc: "In Zwischenwagen Batterien einschalten. In Heckkabine: Hähne auf, Pos 2. Batterie, АР-63, А-53, А-49 an. Reverser vor, Tür auf, Reverser abziehen." },
+                    { title: "Ausfahrt", desc: "In Frontkabine Batterie an, 'Возврат РП' 2-3 Sek drücken. Außen ГВ einschalten. ARS an, Pedale drücken. Ausfahrt mit Udočka bis Schild 'STOP' bei max. 5 km/h." }
                 ]
             },
             {
-                title: "Baureihe 81-717 (Номерной)",
-                state: "Wendeanlage & Kehrgleis",
+                title: "Baureihe 81-502 (Ema-502)",
+                state: "Kaltstart im Betriebshof",
                 difficulty: "Mittel",
                 diffColor: "#f59e0b",
                 steps: [
-                    { title: "Fahrgasträumung", desc: "Nach Ankunft an der Endstation kontrollierst du die ersten beiden Wagen auf Fahrgäste  und schließt die Türen mit <span class='key-badge'>V</span>[cite: 181]. Fahre per Signal in das Kehrgleis ein[cite: 183]." },
-                    { title: "Kabinen-Deaktivierung", desc: "Bringe das Bremsventil in Vollbremsung (PST), schließe die Trennhähne (<span class='key-badge'>Shift + L</span>), stelle den Reverser auf Null (<span class='key-badge'>9</span>) und ziehe ihn ab (<span class='key-badge'>Shift + 7</span>)[cite: 185, 186, 187]." },
-                    { title: "Interieur-Inspektion", desc: "Sperre die Kabinentür mit dem Dreikantschlüssel ab[cite: 187]. Gehe durch die Wagons zur entgegengesetzten Zugspitze und überprüfe dabei Feuerlöscher und Türschwellen[cite: 188]." },
-                    { title: "Gegenseite aufrüsten", desc: "In der neuen Frontkabine: Sobald das manuelle Rangiersignal auf 'Erlaubt' springt, richtest du die Kabine ein (Reverser vorwärts, Ventile auf, ARS an) und fährst zum Bahnsteig[cite: 189, 191]." }
+                    { title: "Kabine einrichten", desc: "In Frontkabine Batterie und Hochspannungsautomat einschalten. Plomben an ВРУ, КАХ, КАД etc. prüfen. ВКФ einschalten." },
+                    { title: "Tests durchführen", desc: "Reverser vorwärts. VUD entsperren, linke Türen öffnen. Reverser neutral und abziehen. VUD sperren." },
+                    { title: "Heck-Aufrüstung", desc: "In Zwischenwagen Batterien/Hochspannung an. Heckkabine: Batterie, Hochspannung, ВПР, УПО an. Reverser vor, Hähne auf, Vollbremsung." },
+                    { title: "Sicherheitspedale", desc: "Frontkabine: СОСД, ВПР, УПО an. Reverser vor. Hauptschalter ГВ an. Auf KVL-Zügen vor der Ausfahrt zwingend Sicherheitspedale (Shift+Leertaste) halten!" }
                 ]
             },
             {
-                title: "Baureihe 81-710 (Ezh3)",
-                state: "Inbetriebnahme nach Nachtabstellung",
+                title: "Baureihe 81-720 (Яуза)",
+                state: "Kaltstart im Betriebshof",
                 difficulty: "Schwer",
                 diffColor: "#ef4444",
                 steps: [
-                    { title: "Erwachen auf der Strecke", desc: "Schalte im finsteren Abstellgleis den Batterie-Hauptschalter und das Notlicht ein[cite: 102, 105]. Aktiviere den Sicherungsautomaten <span class='key-badge'>AV-8A</span> sowie das Funkgerät[cite: 102]." },
-                    { title: "Zwischenwagen-Check", desc: "Wandere durch die Wagons zur Heckkabine. Schalte in jedem Wagon die Batterie ein, prüfe den Bremszylinderdruck (2.2 - 2.4 Bar) und kontrolliere die Handbremsen[cite: 105, 106]." },
-                    { title: "Heck-Konfiguration", desc: "Öffne in der Heckkabine die Trennhähne, lade die Hauptleitung auf 5 Bar im Fahrtstellung-Modus (Stufe II) und aktiviere das ARS-System (Klingelton per <span class='key-badge'>Leertaste</span> quittieren)[cite: 110, 111, 113]." },
-                    { title: "Rollfähigkeits-Prüfung", desc: "Kehre in die Front zurück, öffne die Ventile, schalte ARS ein[cite: 118, 119]. Prüfe die Rollfähigkeit (Nakat) mit Fahrstufe <span class='key-badge'>X1</span>, um das automatische Zurückrollen (Protiwoskatywanije) zu blockieren[cite: 227, 228, 229]." }
+                    { title: "Vityaz Bootvorgang", desc: "Batterie und Automaten auf Панель поездной защиты einschalten. Zwischenwagen Batterien an. Frontkabine: Vityaz Passwort 1234 eingeben." },
+                    { title: "Wagen-Verwaltung", desc: "Reverser vorwärts. Im Vityaz Menü 'Номера вагонов' prüfen und mit Ввод (Enter) bestätigen. Auf ПМВ: Kompressor, ПСН, Licht, Scheinwerfer, Ventilation an." },
+                    { title: "Bremsen testen", desc: "Reserve-Bremse via Num 9 aktivieren, 3 Stufen testen. РВТБ Notbremse prüfen. K-29 öffnen, КМ auf Pos 2." },
+                    { title: "Türkreise", desc: "Schnellschalter (БВ) mit Taste G einschalten. Vityaz-2 Modus 'Двери' aktivieren und Türen testen. Außen ГВ einschalten und ausfahren." }
                 ]
             },
             {
@@ -144,27 +160,15 @@
                 difficulty: "Schwer",
                 diffColor: "#ef4444",
                 steps: [
-                    { title: "Bordnetz booten", desc: "Halte an der Cockpit-Rückwand die Taste <span class='key-badge'>Включение БС</span> für 3-5 Sekunden gedrückt, bis die Displays hochfahren[cite: 324]. Aktiviere alle Sicherungsautomaten[cite: 324]." },
-                    { title: "MFDU-Anmeldung", desc: "Tippe auf dem Touch-Display (MFDU) auf 'Aktivieren' (leuchtet blau)[cite: 326]. Konfiguriere Route, Linie und Fahrernummer über die Funktionstasten <span class='key-badge'>F1</span> und <span class='key-badge'>F2</span>[cite: 325, 328]." },
-                    { title: "BARS-Zwangsbremsung lösen", desc: "Reverser vorwärts (<span class='key-badge'>0</span>)[cite: 330]. Falls der BARS-Computer blockiert (Luft zischt), stelle den Reverser kurz auf Null (<span class='key-badge'>9</span>), starte das ARS am Kippschalter neu und schalte wieder auf Vorwärts (<span class='key-badge'>0</span>)[cite: 330, 331]." },
-                    { title: "Sicherheits-Pedalsperre", desc: "<strong>Wichtig:</strong> Halte vor dem Anfahren zwingend die Sicherheits-Pedalerie (<span class='key-badge'>Shift + Leertaste</span>) gedrückt, da der Zug sonst trotz gewählter Fahrstufe absolut blockiert[cite: 278, 280]." }
-                ]
-            },
-            {
-                title: "Baureihe 81-720 (Яуза)",
-                state: "Vollständig fahrbereit",
-                difficulty: "Einfach",
-                diffColor: "#38b000",
-                steps: [
-                    { title: "Zentralanmeldung", desc: "Da der Zug bereits fahrbereit spawnt, setzt du dich auf den Fahrersitz und gibst am 'Витязь'-Computer das Standardpasswort <span class='key-badge'>1234</span> ein (<span class='key-badge'>Alt + Numpad</span>)[cite: 296, 302]." },
-                    { title: "Verband verifizieren", desc: "Stecke den Reverser mit <span class='key-badge'>Shift + 0</span> ein und lege ihn auf Vorwärts (<span class='key-badge'>0</span>)[cite: 302]. Bestätige die angezeigte Wagonanzahl am Monitor mit der Taste <span class='key-badge'>Ввод</span>[cite: 303]." },
-                    { title: "Aggregate zuschalten", desc: "Aktiviere auf der rechten Schalterkonsole (PME) den Kompressor (MK), den statischen Umformer (PSN) sowie die Fahrgastraumbeleuchtung und Scheinwerfer[cite: 305]." },
-                    { title: "Schnellschalter & Abfahrt", desc: "Drücke <span class='key-badge'>G</span>, um den elektronischen Schnellschalter (BV) einzulegen[cite: 308]. Schließe die Türen über das 'Витязь'-Menü und bewege den Fahrhebel (<span class='key-badge'>W</span>) sanft nach vorne[cite: 309]." }
+                    { title: "Netz aufschalten", desc: "Sicherstellen, dass kein 825V anliegt. Taste 'Включение БС' 3-5 Sek gedrückt halten. Automaten an. Salonlicht an, Ventilation auf АВТ." },
+                    { title: "Computer einrichten", desc: "ARS, ALS, Scheinwerfer, Kompressoren an. MFDU-Display: 'Активировать' drücken, OK bestätigen. Route auf БМЦИК-01 einstellen." },
+                    { title: "BARS-Zwangsbremse", desc: "Reverser vorwärts. Bei roter BARS-Fehlermeldung (Экстренное торможение БАРС): Reverser 0, ARS aus, Klingel abwehren, ARS an, Reverser vor." },
+                    { title: "Traktion entsperren", desc: "Spannung prüfen. Zum Anfahren Sicherheitspedale zwingend gedrückt halten, Leistung auf 20% stellen und mit max. 5 km/h bis STOP-Schild fahren." }
                 ]
             }
         ];
 
-        // Würfel-Logik ausführen
+        // Zufälliges Modell auswürfeln
         const randomSelection = trainPool[Math.floor(Math.random() * trainPool.length)];
         document.getElementById("train-title").innerText = randomSelection.title;
         document.getElementById("train-state").innerText = randomSelection.state;
@@ -191,7 +195,9 @@
             `;
         });
 
-        // 3. PLAYLIST & AUDIO ENGINE
+        // ----------------------------------------------------
+        // KORRIGIERTER AUDIO PLAYER (Pfade + robustes Playback)
+        // ----------------------------------------------------
         const playlist = [
             { path: "music/kate.mp3", title: "Kate", artist: "Solar Fields" },
             { path: "music/still-alive.mp3", title: "Still Alive", artist: "Lisa Miskovsky / Solar Fields" },
@@ -216,8 +222,16 @@
                 bufferLength = analyser.frequencyBinCount;
                 dataArray = new Uint8Array(bufferLength);
                 isAudioSetup = true;
-                renderAudioReaction();
-            } catch(e) { console.log("Audio Engine wartet."); }
+                
+                // Falls der Context wegen fehlender Interaktion auf "suspended" steht
+                if (audioCtx.state === 'suspended') {
+                    console.log("AudioContext is suspended. Warten auf Benutzerklick...");
+                } else {
+                    renderAudioReaction();
+                }
+            } catch(e) { 
+                console.log("Audio API konnte nicht aufgebaut werden.", e); 
+            }
         }
 
         function playRandomSong() {
@@ -228,19 +242,29 @@
                     newIndex = Math.floor(Math.random() * playlist.length);
                 }
             } else { newIndex = 0; }
+            
             lastTrackIndex = newIndex;
             const currentSong = playlist[newIndex];
-            audio.src = currentSong.path;
-            audio.volume = 0.15; 
+            
+            // DOM Update VOR dem Abspielen forcieren, um "Warte..." sicher zu entfernen
             document.getElementById("track-title").innerText = currentSong.title;
             document.getElementById("track-artist").innerText = currentSong.artist;
             document.getElementById("track-progress").style.width = "0%";
-            audio.play().then(() => { initAudioReactor(); }).catch(e => {});
+            
+            audio.src = currentSong.path;
+            audio.volume = 0.15; 
+            
+            audio.play().then(() => { 
+                initAudioReactor(); 
+            }).catch(e => {
+                console.log("Browser hat Autoplay blockiert. Ein Klick auf die Seite startet die Musik.");
+            });
         }
 
         function renderAudioReaction() {
+            if (!isAudioSetup || audioCtx.state === 'suspended') return;
             requestAnimationFrame(renderAudioReaction);
-            if (!isAudioSetup) return;
+            
             analyser.getByteFrequencyData(dataArray);
             let bass = 0;
             for(let i = 0; i < 4; i++) { bass += dataArray[i]; }
@@ -264,19 +288,34 @@
             }
         }
 
+        // Benutzerinteraktion fängt Autoplay-Blockaden und suspensed AudioContexts auf
         window.addEventListener('click', () => {
-            if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
-            initAudioReactor();
+            if (audio.paused) {
+                audio.play().catch(e => console.log(e));
+            }
+            if(audioCtx && audioCtx.state === 'suspended') {
+                audioCtx.resume().then(() => {
+                    renderAudioReaction();
+                });
+            } else {
+                initAudioReactor();
+            }
         });
+
         audio.addEventListener('timeupdate', function() {
             if (audio.duration) {
                 document.getElementById("track-progress").style.width = ((audio.currentTime / audio.duration) * 100) + "%";
             }
         });
+        
         audio.addEventListener('ended', playRandomSong);
+        
+        // Initialer Startschuss
         playRandomSong();
 
-        // Gmod Ladebalken-Schnittstellen
+        // ----------------------------------------------------
+        // GMOD LADEBALKEN (STEAMCMD SYNC)
+        // ----------------------------------------------------
         let totalFiles = 0, neededFiles = 0;
         function SetStatusChanged(status) { document.getElementById("status-text").innerText = status; }
         function SetFilesTotal(total) { if (total > totalFiles) totalFiles = total; }

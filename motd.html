@@ -19,7 +19,6 @@
             padding: 25px;
         }
 
-        /* 2008 GRAPHIC AURORA OVERLAY */
         .background-overlay {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -38,7 +37,6 @@
             z-index: -2;
         }
 
-        /* PREMIUM AERO APPLICATION WINDOW */
         .wiki-window {
             width: 96vw;
             max-width: 1150px;
@@ -54,7 +52,6 @@
             overflow: hidden;
         }
 
-        /* SIDEBAR (Windows Vista Explorer Stil) */
         .wiki-sidebar {
             width: 270px;
             background: linear-gradient(to bottom, rgba(255,255,255,0.2) 0%, rgba(0,0,0,0.05) 100%);
@@ -97,7 +94,6 @@
 
         .sidebar-footer { font-size: 0.75rem; color: rgba(255,255,255,0.7); font-weight: 500; }
 
-        /* CONTENT MONITOR */
         .wiki-content { flex: 1; display: flex; flex-direction: column; background: rgba(255,255,255,0.1); overflow: hidden; }
 
         .content-header {
@@ -108,7 +104,6 @@
         }
         .content-header h1 { font-size: 1.55rem; color: #004475; font-weight: 600; text-shadow: 0 1px 0 rgba(255,255,255,0.5); }
 
-        /* SUBPAGE TABS */
         .state-tabs { display: flex; gap: 6px; }
         .state-link { text-decoration: none; }
         .state-tab {
@@ -123,7 +118,6 @@
             position: relative; z-index: 2;
         }
 
-        /* ARTICLE BODY */
         .content-body {
             flex: 1; padding: 25px; overflow-y: auto;
             background: linear-gradient(to bottom, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.05) 100%);
@@ -136,8 +130,8 @@
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.3);
         }
 
-        .content-body h2 { font-size: 1.35rem; color: #003e6b; margin-bottom: 12px; font-weight: 600; border-bottom: 1px solid rgba(0,0,0,0.08); padding-bottom: 5px; }
-        .content-body h3 { font-size: 1.1rem; color: #0284c7; margin: 16px 0 6px 0; font-weight: 600; }
+        .content-body h2 { font-size: 1.35rem; color: #003e6b; margin-bottom: 8px; font-weight: 600; border-bottom: 1px solid rgba(0,0,0,0.08); padding-bottom: 5px; }
+        .content-body h3 { font-size: 1.1rem; color: #0284c7; margin: 14px 0 6px 0; font-weight: 600; }
         .content-body p { font-size: 0.98rem; color: #0f172a; line-height: 1.5; margin-bottom: 14px; font-weight: 500; }
 
         .content-body ul { list-style: none; display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
@@ -166,6 +160,14 @@
             border: 1px solid rgba(245, 158, 11, 0.5); border-radius: 12px; padding: 12px 15px;
             font-size: 0.94rem; color: #78350f; font-weight: 500; margin-bottom: 15px;
         }
+        
+        .error-box {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(239, 68, 68, 0.05) 100%);
+            border: 1px solid rgba(239, 68, 68, 0.4); border-radius: 12px; padding: 20px;
+            text-align: center; margin-top: 20px;
+        }
+        .error-box h3 { color: #b91c1c; margin-bottom: 10px; margin-top: 0;}
+        .error-box p { color: #7f1d1d; margin-bottom: 0; }
     </style>
 </head>
 <body>
@@ -183,6 +185,7 @@
             
             <div class="nav-group">
                 <span class="nav-label">Fahrzeugflotte</span>
+                <a class="nav-link" href="?train=710" id="link-710"><button class="nav-btn">Ezh3 (81-710)</button></a>
                 <a class="nav-link" href="?train=717" id="link-717"><button class="nav-btn">81-717 Номерной</button></a>
                 <a class="nav-link" href="?train=702" id="link-702"><button class="nav-btn">81-702 Typ D</button></a>
                 <a class="nav-link" href="?train=502" id="link-502"><button class="nav-btn">81-502 Ema-502</button></a>
@@ -200,10 +203,10 @@
             <div class="content-header">
                 <h1 id="current-train-name">Baureihe Laden...</h1>
                 <div class="state-tabs">
-                    <a class="state-link" href="" id="tab-fully"><button class="state-tab">Vollständig fahrbereit</button></a>
-                    <a class="state-link" href="" id="tab-depot"><button class="state-tab">Kaltstart im Betriebshof</button></a>
-                    <a class="state-link" href="" id="tab-deadend"><button class="state-tab">Wendeanlage & Kehrgleis</button></a>
+                    <a class="state-link" href="" id="tab-depot"><button class="state-tab">Kaltstart (Depot)</button></a>
+                    <a class="state-link" href="" id="tab-deadend"><button class="state-tab">Wendeanlage</button></a>
                     <a class="state-link" href="" id="tab-night"><button class="state-tab">Nach Nachtabstellung</button></a>
+                    <a class="state-link" href="" id="tab-facts"><button class="state-tab">Fahrhinweise</button></a>
                 </div>
             </div>
 
@@ -215,247 +218,254 @@
     <script>
         const urlParams = new URLSearchParams(window.location.search);
 
+        // Das 100% textakkurate Datenmodell
         const wikiData = {
-            "717": {
-                name: "Baureihe 81-717 \"Номерной\"",
-                fully: `
-                    <h2>Inbetriebnahme: Vollständig fahrbereit (Powered-up state)</h2>
-                    <p>Nutze dieses Verfahren, wenn der Zug betriebsbereit über den Train Spawner auf die Strecke gesetzt wurde.</p>
-                    <ul>
-                        <li>Nimm auf dem Fahrersitz Platz. Stecke mit <span class="key-badge">Shift + 0</span> den Reverser-Schlüssel ein und stelle ihn mit <span class="key-badge">0</span> auf "Vorwärts".</li>
-                        <li>Verbinde das Pneumatik-Bremsventil durch Ziehen des blauen Hebels (<span class="key-badge">Shift + L</span>). Drücke das Ventil auf Position 1 (<span class="key-badge">R</span>), um die Leitung auf den Regeldruck von 5,0 bar zu laden.</li>
-                        <li>Drücke für 2-3 Sekunden den Taster <strong>Возврат РП</strong> (<span class="key-badge">G</span>), um den elektronischen Überlastschutz (RP/BV) zu resetten. Ohne diesen Reset nehmen die Motoren keinen Fahrstrom an.</li>
-                        <li>Türen abfertigen: Öffne die linke Seite mit <span class="key-badge">A</span> oder die rechte Seite mit <span class="key-badge">D</span>. Schließe alle Türen über den Schalter <span class="key-badge">V</span>.</li>
-                        <li>Fahrhebel (KV): Schalte mit <span class="key-badge">W</span> die Positionen auf (Stufe X1 für Depot/Rangieren, X2-X3 für normale Streckenfahrt). Drücke <span class="key-badge">4</span> für den Leerlauf (Rollen). Elektrisch bremsen mit <span class="key-badge">S</span> (Stufen T1, T1A, T2).</li>
-                    </ul>
-                `,
+            "710": {
+                name: "Baureihe Ezh3 (81-710)",
                 depot: `
-                    <h2>Betriebsmodus: Kaltstart im Betriebshof (Depot Startup)</h2>
-                    <div class="info-warning">Achtung: Bevor du die Elektronik einschaltest, stelle sicher, dass der Zug mit der деповская Luftleitung gekoppelt (Druck ≥ 6,3 bar) und von der Hochspannung (Udočka) getrennt ist!</div>
+                    <h2>Приёмка подвижного состава (Depot-Start)</h2>
+                    <p>Vollständiges Inbetriebnahme-Protokoll aus dem offiziellen Handbuch.</p>
                     <ul>
-                        <li>Schalte an der Cockpit-Rückwand die drei Haupt-Schutzautomaten <span class="key-badge">АР-63</span>, <span class="key-badge">А-53</span> und <span class="key-badge">А-49</span> ein.</li>
-                        <li>Aktiviere darunter den <strong>Выключатель батарей (ВБ)</strong>. Prüfe am Voltmeter die Bordspannung; diese muss zwingend ≥ 62 Volt betragen.</li>
-                        <li>Schalte den Verstärker (УНЧ), das Kontroll-Mikrofon (КГ) und den Radio-Ansager ein. Richte das АСНП-Display ein (Fahrernummer, Route, Pfad).</li>
-                        <li>Kontrolliere die Sicherheits-Plomben an folgenden Schaltern: <span class="key-badge">UAVA</span>, <span class="key-badge">РЦ-АРС</span>, <span class="key-badge">РЦ-УОС</span>, <span class="key-badge">КАХ</span>, <span class="key-badge">Откл. БВ</span> und <span class="key-badge">ВАХ</span>.</li>
-                        <li>Öffne den Absperrhahn mit <span class="key-badge">Num 0</span>, bringe das Bremsventil in Fahrtstellung (<span class="key-badge">Num 2</span>) und lade auf 5 Bar auf. Wandere durch die Zwischenwagen (Endtüren mit <span class="key-badge">E</span> öffnen) und aktiviere überall die Batterien (ВБ).</li>
-                        <li>Schalte außen unter dem Wagenkasten den mechanischen Trennschalter <strong>ГВ</strong> ein. Verbinde das Hallen-Stromkabel (Udočka) mit dem Abnehmer des 2. Wagens und lege den Depot-Wandhebel für 825V um.</li>
-                        <li>Zurück im Führerstand: Reverser vorwärts (<span class="key-badge">0</span>), ARS & ALS Kippschalter aktivieren (Zweiklang ertönt). Drücke die Pedale бдительности (<span class="key-badge">Leertaste</span>), um das Signal zu quittieren. Resetten mit <span class="key-badge">G</span>.</li>
-                        <li>Rollprobe (Nakat): Gib kurz Fahrstufe <span class="key-badge">X1</span>. Rolle mit maximal 5 km/h aus der Halle, bis die Stromschienen-Schuhe greifen. Vollbremsung einleiten, 3 kurze Töne (<span class="key-badge">L</span>) abgeben und die Udočka trennen lassen.</li>
+                        <li>Überprüfen, dass kein 825V anliegt und die Udočka vom Stromabnehmer getrennt ist.</li>
+                        <li>In der Frontkabine: Sicherstellen, dass Absperrhähne (НМ und ТМ) offen sind, Druck in TM (5.0-5.2 atm) und NM (≥ 6 atm) vorhanden ist.</li>
+                        <li>Batterie-Hauptschalter und Automat АВ-8А einschalten. Funkgerät einschalten.</li>
+                        <li>Reverser auf "Vorwärts". Türen links öffnen. Vollbremsung einleiten, Hähne schließen, Bremsventil auf Position I. Reverser abziehen.</li>
+                        <li>Durch den Zug gehen: Batterien (АКБ) und Automat АВ-8А in jedem Wagen zuschalten. Druck in ТЦ (2.2 - 2.4 atm) und Türöffnung prüfen.</li>
+                        <li>In der Heckkabine: Batterie und АВ-8А an. ЭПК-Kran schließen, Hähne öffnen, Bremsventil auf Pos II. Druck muss 5.0-5.2 atm betragen. Reverser vorwärts, ARS an, Klingel abwarten, ЭПК-Kran öffnen. Bremsschema testen. ARS aus, Reverser abziehen.</li>
+                        <li>Zurück in Frontkabine: Gleiche Prozedur (ЭПК zu, Hähne auf, Bremsventil Pos II). ARS an, Reverser vorwärts. Türen schließen. GV (Hauptschalter) einschalten.</li>
+                        <li>Ausfahrt: Nach Udočka-Anschluss und Signal "Д" den Zug mit "Ход-1" kurz anrollen lassen, dann auf max 5 km/h beschleunigen.</li>
                     </ul>
                 `,
                 deadend: `
-                    <h2>Betriebsmodus: Wendeanlage & Kehrgleis (Dead End Turning)</h2>
-                    <p>Sicherungsschritte beim Wechseln der Fahrtrichtung im Kehrabschnitt der Endstationen.</p>
+                    <h2>Маневровые передвижения на оборотных путях (Wendeanlage)</h2>
+                    <p>Sicherungsschritte beim Wechseln der Fahrtrichtung im Kehrabschnitt.</p>
                     <ul>
-                        <li>Nachdem du die ersten beiden Wagen visuell auf verbliebene Fahrgäste kontrolliert hast, schließt du die Türen. Fahre per Rangiersignal ins Kehrgleis ein.</li>
-                        <li>Bringe den Zug zum Stillstand, leite eine pneumatische Vollbremsung (PST) ein und sperre die Trennhähne mit <span class="key-badge">Shift + L</span>.</li>
-                        <li>Stelle den Richtungsschalter auf Null (<span class="key-badge">9</span>) und ziehe den Reversier-Schlüssel ab mit <span class="key-badge">Shift + 7</span>. Deaktiviere den Batterie-Hauptschalter (ВБ).</li>
-                        <li>Sperre die Kabinentür ab. Gehe durch die Wagons zur entgegengesetzten Zugspitze. Kontrolliere unterwegs die Feuerlöscher und die Trittschwellen auf Unregelmäßigkeiten.</li>
-                        <li>In der neuen Frontkabine: Schalte die Batterie ein, öffne die Luft-Trennhähne, stecke den Reverser ein (<span class="key-badge">Shift + 0</span>) und wähle Vorwärts (<span class="key-badge">0</span>).</li>
-                        <li>Schalte das ARS-Sicherungssystem ein, quittiere den Warnton mit der <span class="key-badge">Leertaste</span> und fahre bei freigegebenem Rangiersignal zurück an den Bahnsteig.</li>
+                        <li>Nach der Fahrgasträumung und Türen schließen: Zug ins Kehrgleis fahren.</li>
+                        <li>Am Signalzeichen halten, Türen zum Übergangssteg öffnen. Vollbremsung (ПСТ) einleiten.</li>
+                        <li>Absperrhähne НМ und ТМ schließen. Kabine in nicht-arbeitsbereiten Zustand versetzen, Kabine abschließen.</li>
+                        <li>Beim Durchqueren des Zugs in jedem Wagen prüfen: Beleuchtung, fremde Objekte, Feuerlöscher.</li>
+                        <li>In der neuen Kabine: Bei rotem Signal darf der Arbeitsplatz NICHT eingenommen werden (Ausnahme: Kompressor darf eingeschaltet werden).</li>
+                        <li>Bei grünem Signal: Kabine aktivieren, Signale und ARS duplizieren und Ausfahrt antreten.</li>
                     </ul>
                 `,
                 night: `
-                    <h2>Betriebsmodus: Inbetriebnahme nach Nachtabstellung (Night Stabling)</h2>
-                    <p>Prozedur zum Aufwecken des Zugverbandes aus dem Ruhezustand auf den Strecken- oder Abstellgleisen.</p>
+                    <h2>Порядок постановки и приёмки после ночного отстоя (Nachtabstellung)</h2>
+                    <p>Prozedur zum Abstellen und Wecken des Zugverbandes.</p>
                     <ul>
-                        <li>Hol dir deine Reversierkurbel im Posten ab. Gehe zum Zug und aktiviere in der Frontkabine den Batterie-Hauptschalter und das Notlicht.</li>
-                        <li>Wandere nach hinten durch den kalten Zugverband. Schalte in den Kabinen der Zwischenwagen die Batterien (ВБ) ein und prüfe, ob die mechanischen Handbremsspindeln vollständig gelöst sind.</li>
-                        <li>Kontrolliere an den Wagon-Manometern, ob der Bremszylinderdruck ordnungsgemäß zwischen 2.2 - 2.4 bar liegt.</li>
-                        <li>In der Heckkabine: Öffne die Trennhähne, bringe das Bremsventil in Fahrtstellung Modus II, um die Leitung auf 5.0 - 5.2 bar aufzupressen.</li>
-                        <li>Schalte das ARS ein, quittiere den Klingelton mit der <span class="key-badge">Leertaste</span> und teste die elektrische Schaltung kurz auf Bremswirkung. Reverser abziehen, Kabine zusperren.</li>
-                        <li>Kehre in die Front zurück: Ventile öffnen, ARS scharfschalten, Leitung laden. Führe die Rollfähigkeits-Prüfung (Nakat) mit Fahrstufe <span class="key-badge">X1</span> durch, um das automatische Zurückrollen (Protiwoskatywanije) zu sperren.</li>
+                        <li><strong>Abstellen:</strong> Am Haltezeichen Vollbremsung einleiten, Hähne schließen. Türen zum Steg öffnen. ARS, Kompressor, Beleuchtung und Funk ausschalten. Reverser abziehen. Kopf-Wagen mit Handbremse sichern. Batterien und АВ-8А in jedem Wagen abschalten. Heck-Wagen handbremsen.</li>
+                        <li><strong>Aufwecken (Morgen):</strong> In Frontkabine Batterie, АВ-8А und Funk einschalten. Hähne schließen, Kompressor an.</li>
+                        <li>Durch den Zug gehen: Batterien und АВ-8А an, Handbremsen LÖSEN.</li>
+                        <li>In Heckkabine: Hähne öffnen, Bremsventil auf Pos II. Wenn Druck erreicht: Reverser vor, ARS an, Bremsschema testen. Vollbremsung, Hähne zu, Reverser ab.</li>
+                        <li>Zurück in Frontkabine: Hähne auf, Bremsventil Pos II, ARS an. Rollfähigkeit (Nakat) mit "Ход-1" testen bis 7-8 km/h zur Verhinderung von automatischem Zurückrollen.</li>
                     </ul>
+                `,
+                facts: `
+                    <h2>Allgemeine Fahrhinweise (Ezh3)</h2>
+                    <div class="info-warning">Hinweis: Die Baureihe Ezh3 kann nicht mit Wagen vom Typ E oder Ezh gekuppelt werden.</div>
+                    <p>Die Wagen besitzen stärkere Motoren (72 kW statt 68 kW) und Thyristor-Regler für weiches Bremsen bei hohen Geschwindigkeiten.</p>
+                    <p><strong>Stationsbetrieb:</strong> Türen 15 Sekunden vor Abfahrt ansagen, 5 Sekunden vor Abfahrt schließen. Bei ARS/ALS Warnung oder Rot-Signal die Türen offen lassen, bis Signal auf Fahrt springt.</p>
+                    <p><strong>Waschanlage:</strong> Bei Durchfahrt der automatischen Waschstraße (Мойка) Spiegel einklappen, an Bürsten halten bis Wasser kommt, dann mit max. 2-3 km/h durchziehen.</p>
+                `
+            },
+            "717": {
+                name: "Baureihe 81-717 (Номерной)",
+                depot: `
+                    <h2>Запуск (Depot-Start)</h2>
+                    <p>Prozedur zur Inbetriebnahme aus dem Depot.</p>
+                    <ul>
+                        <li>Sicherstellen, dass der Zug von der Hochspannung (Udočka) getrennt ist.</li>
+                        <li>In der Kopf-Kabine <strong>Выключатель батарей</strong> einschalten (Spannung ≥62 V). <span class="key-badge">АР-63</span>, <span class="key-badge">А-53</span>, <span class="key-badge">А-49</span>, УНЧ, Funk und Ansager einschalten.</li>
+                        <li>АСНП-Gerät konfigurieren (Route, Station, Pfad, Fahrer-ID). Signaltaste <span class="key-badge">l</span> testen.</li>
+                        <li>Plomben an UAVA, ARS, UOS, etc. prüfen. Druck in Hauptleitung muss ≥ 6,3 atm sein.</li>
+                        <li>Rast-Hahn mit <span class="key-badge">Num 0</span> öffnen, Bremsventil auf Pos 2 (<span class="key-badge">Num 2</span>), Druck prüfen. Vollbremsung (<span class="key-badge">Num 6</span>), Hahn zu, Batterie aus.</li>
+                        <li>Durch den Zug in die Heckkabine gehen. Dort Hähne auf, Pos 2. Batterie, АР-63, А-53, А-49, УНЧ an. Reverser mit <span class="key-badge">Shift+0</span> rein, <span class="key-badge">0</span> vorwärts, Türen auf, Reverser <span class="key-badge">9</span> neutral und <span class="key-badge">Shift+7</span> abziehen. Bremsventil bleibt offen!</li>
+                        <li>Beim Zurückgehen in Mittelwagen Batterien (ВБ) einschalten.</li>
+                        <li>In Frontkabine Batterie an, <span class="key-badge">Возврат РП</span> für 2-3 Sek drücken. Türen schließen.</li>
+                        <li>Außen am Zug <strong>ГВ</strong> einschalten. Rote Rücklichter prüfen. Heckkabinen-Test durchführen.</li>
+                        <li>In Frontkabine: ARS an (Lampen leuchten, Klingel ertönt), Pedale (<span class="key-badge">Leertaste</span>) drücken. Bremsen in <span class="key-badge">Т1</span>, <span class="key-badge">Т1А</span>, <span class="key-badge">Т2</span> testen.</li>
+                        <li>Hochspannung anfordern. Reverser vor, ARS an, Pedale drücken. Ausfahrt bis Schild "STOP" mit max. 5 km/h. Udočka trennen lassen, Kompressoren und Licht an.</li>
+                    </ul>
+                `,
+                deadend: `
+                    <div class="error-box">
+                        <h3>Kein Systemprotokoll gefunden</h3>
+                        <p>Das offizielle Wiki enthält für die Baureihe 81-717 keine dokumentierte Prozedur für die Wendeanlage.</p>
+                        <p style="margin-top: 10px; font-size: 0.9em; opacity: 0.8;">Bitte orientieren Sie sich an der Prozedur der Baureihe Ezh3 (81-710).</p>
+                    </div>
+                `,
+                night: `
+                    <div class="error-box">
+                        <h3>Kein Systemprotokoll gefunden</h3>
+                        <p>Das offizielle Wiki enthält für die Baureihe 81-717 keine dokumentierte Prozedur für die Nachtabstellung.</p>
+                        <p style="margin-top: 10px; font-size: 0.9em; opacity: 0.8;">Bitte orientieren Sie sich an der Prozedur der Baureihe Ezh3 (81-710).</p>
+                    </div>
+                `,
+                facts: `
+                    <h2>Wissenswertes (81-717)</h2>
+                    <p>81-717/714 ist der verbreitetste Waggontyp im postsowjetischen Raum. "Номерной" (Der Nummerierte) heißt er, weil es der erste Waggon ohne Buchstaben-Kennung (wie A, B, E, D) war.</p>
+                    <p>Die Zwischenwagen (81-714) haben keine Fahrerkabinen. Die Kopfwagen haben kein Front-Durchgangstor mehr, was ein breiteres Sichtfeld für den Fahrer ermöglicht.</p>
+                    <p>Alle Kopfwagen sind mit ARS-ALS, ASNP und dem Fahrerventil Typ 013 ausgestattet.</p>
                 `
             },
             "702": {
-                name: "Baureihe 81-702 (Typ D - Klassik)",
-                fully: `
-                    <h2>Fahrbetrieb mit historischer Technik (Powered-up)</h2>
-                    <p>Der Typ D ist der mechanischste Zug der Mod. Er verzeiht keine Unachtsamkeit an Signalen!</p>
-                    <ul>
-                        <li>Nimm Platz, stecke die Reversierkurbel mit <span class="key-badge">Shift + 0</span> ein und lege sie mit <span class="key-badge">0</span> nach vorne.</li>
-                        <li><strong>WICHTIGE SIGNALSICHERHEIT:</strong> Dieser Zug besitzt KEIN elektronisches ARS/ALS-System! Es gibt im Cockpit keine Tacho-Anzeige für Limits und keine Zwangsbremsungen – fahre strikt auf Sicht und beobachte die Tunnelsignale exakt per Auge!</li>
-                        <li><strong>WICHTIGE TŪRSICHERHEIT:</strong> Der Typ D besitzt keine Schaltung, die das Anfahren bei offenen Türen blockiert! Du kannst mit offenen Türen losrasen. Halte den VUD-Schalter zur Sicherheit deiner Fahrgäste stets verriegelt.</li>
-                        <li><strong>Bremsverhalten beachten:</strong> Auf niedrigen Geschwindigkeiten bricht die elektrische Rheostat-Bremse wirkungslos zusammen. Schalte kurz vor dem Stillstand das Pneumatik-Ventil oder den Ausgleichshebel hinzu, um nicht über das Stationsende hinauszuschießen.</li>
-                    </ul>
-                `,
+                name: "Baureihe 81-702 (Typ D)",
                 depot: `
-                    <h2>Typ D Depot-Inbetriebnahme (Kaltstart)</h2>
-                    <p>Prozedur zum manuellen Aufrüsten der klassischen Relais-Technik des Typ D.</p>
-                    <ul>
-                        <li>Schalte den Batterie-Hauptschalter unter dem Fahrpult ein und kontrolliere die mechanische Bordspannung.</li>
-                        <li>Öffne das Absperrventil mit der Taste <span class="key-badge">Num 0</span> und bringe das Bremsventil in die zweite Stufe (<span class="key-badge">Num 2</span>), um die Druckluftanlage auf den vollen Betriebsdruck aufzupressen.</li>
-                        <li>Gehe durch den Zugverband nach hinten und aktiviere in jedem Zwischenwagen den analogen Batterie-Schalter einzeln.</li>
-                        <li>In der Heckkabine: Batterie zuschalten, Druckluft laden und den manuellen Signalton mit <span class="key-badge">L</span> auf Funktion testen. Scheinwerfer aktivieren.</li>
-                        <li>Gehe zurück nach vorne. Verlasse die Kabine und aktiviere händisch die <strong>GV-Trennschalter</strong> außen unter den Wagenkästen auf beiden Seiten.</li>
-                        <li>Koppele das Depot-Hochspannungskabel an, lasse den Saft freigeben und fahre den mechanischen Hebel auf Stufe X1 auf, um den Zug im Sichtflug mit maximal 5 km/h ins Freie zu rangieren.</li>
-                    </ul>
+                    <div class="error-box">
+                        <h3>Kein Systemprotokoll gefunden</h3>
+                        <p>Das offizielle Wiki enthält für den Typ D keine dokumentierte Prozedur für den Kaltstart.</p>
+                        <p style="margin-top: 10px; font-size: 0.9em; opacity: 0.8;">Bitte orientieren Sie sich an der Prozedur der Baureihe Ezh3 oder 81-717.</p>
+                    </div>
                 `,
                 deadend: `
-                    <h2>Typ D Kehrgleis-Wende (Wendeanlage)</h2>
-                    <p>Manuelles Sicherungsverfahren beim Richtungswechsel mit mechanischen Verriegelungen.</p>
-                    <ul>
-                        <li>Bringe den Zug am Wendezeichen zum Stehen und leite sofort eine pneumatische Vollbremsung ein, um ein Wegrollen im Tunnel zu blockieren.</li>
-                        <li>Schließe alle Türen. <strong>Wichtig:</strong> Da beim Typ D keine automatische Kontrollleuchte existiert, vergewissere dich per Blick aus dem Cockpitfenster, dass alle Waggontüren mechanisch geschlossen sind!</li>
-                        <li>Stelle die Richtungskurbel in die neutrale Mittelstellung (<span class="key-badge">9</span>) und ziehe sie mit der Kombination <span class="key-badge">Shift + 7</span> ab.</li>
-                        <li>Sperre das Gehäuse ab, wandere durch die Wagenzellen ans andere Ende, richte das neue Pult ein (Batterie an, Kurbel rein auf Vorwärts) und warte auf das optische Streckensignal.</li>
-                    </ul>
+                    <div class="error-box">
+                        <h3>Kein Systemprotokoll gefunden</h3>
+                        <p>Das offizielle Wiki enthält für den Typ D keine dokumentierte Prozedur für die Wendeanlage.</p>
+                    </div>
                 `,
                 night: `
-                    <h2>Typ D Strecken-Inbetriebnahme (Nach Nachtabstellung)</h2>
-                    <p>Sicherungsschritte zum Reaktivieren des historischen Zuges auf der Hauptstrecke.</p>
+                    <div class="error-box">
+                        <h3>Kein Systemprotokoll gefunden</h3>
+                        <p>Das offizielle Wiki enthält für den Typ D keine dokumentierte Prozedur für die Nachtabstellung.</p>
+                    </div>
+                `,
+                facts: `
+                    <h2>Интересные факты (Fahrhinweise für Typ D)</h2>
+                    <div class="info-warning">Achtung: Dies ist der älteste Zug in Metrostroi. Es gibt kein ARS/ALS. Fahren Sie streng auf Sicht!</div>
                     <ul>
-                        <li>Schalte das Netz in der Frontkabine ein und prüfe am analogen Voltmeter die Stabilität der Akkumulatoren.</li>
-                        <li><strong>Mechanische Kontrolle:</strong> Wandere durch den Zug und löse an den Radsätzen die mechanischen Handbrems-Spindelstangen händisch! Es gibt keine Kontrollleuchte im Führerstand, die ein Schleifen der Bremsbacken signalisiert.</li>
-                        <li>Schalte die Batterien aller Zwischenwagen händisch zu. In der Heckkabine die Leitungen laden, den Druck überprüfen und die Kurbel für den Wendevorgang vorbereiten.</li>
-                        <li>Führe nach der Rückkehr in die Front die Rollfähigkeits-Prüfung durch und fahre den Streckenabschnitt streng auf Sicht ab.</li>
+                        <li>Der Waggon ist in der Steuerung sehr einfach und daher (laut Wiki) "für Anfänger geeignet".</li>
+                        <li>Da keine elektronischen Sicherheitssysteme (ARS) verbaut sind, wird das Fahren mit einem Hilfsmaschinisten empfohlen.</li>
+                        <li><strong>Bremsung:</strong> Bei niedrigen Geschwindigkeiten ist die elektrische Bremse ineffektiv. Nutzen Sie das Ventil oder die pneumatische Bremse gepaart mit der elektrischen!</li>
+                        <li><strong>Tür-Sicherung:</strong> Dieser Zug hat KEINE Einrichtung, die das Fahren mit offenen Türen blockiert. Es wird empfohlen, mit verriegeltem ВУД (VUD) zu fahren.</li>
                     </ul>
                 `
             },
             "502": {
                 name: "Baureihe 81-502 (Ema-502)",
-                fully: `
-                    <h2>Fahrbetrieb im Petersburger System (Powered-up)</h2>
-                    <p>Konstruiert für Strecken mit Bahnsteigtüren (Horizontaler Lift).</p>
-                    <ul>
-                        <li>Setz dich ins Cockpit, stecke den Reverser ein (<span class="key-badge">Shift + 0</span>) und wähle Vorwärts (<span class="key-badge">0</span>).</li>
-                        <li>Schalte die Systeme СОСД, ВПР und УПО auf deiner Schaltkonsole ein.</li>
-                        <li><strong>WICHTIGER HINWEIS ZUR PEDALERIE (KVL-Modell):</strong> Die Varianten mit KVL-Automatik nutzen anstelle des Totmannknopfs ein modifiziertes Sicherheitspedal. Du musst die Kombination <span class="key-badge">Shift + Leertaste</span> permanent gedrückt halten! Lässt du das Pedal los, blockiert die Elektronik die Motoren augenblicklich.</li>
-                        <li>Nutze den automatischen Ansager (УПО), da dieser das Timing für das synchrone Öffnen mit den Bahnhofs-Schiebetüren regelt.</li>
-                    </ul>
-                `,
                 depot: `
-                    <h2>Ema-502 Depot-Aufrüstung (Kaltstart)</h2>
-                    <p>Komplettes Inbetriebnahme-Protokoll der St. Petersburger Fahrtweg-Sicherung.</p>
+                    <h2>Запуск (Depot-Start)</h2>
+                    <p>Die Prozedur für die Leningrader Waggons.</p>
                     <ul>
-                        <li>Schalte in der Frontkabine den Batterie-Hauptschalter und den Hochspannungsautomaten (Автомат высоковольтных цепей) ein. Aktivierung von Kabinen- und Pultbeleuchtung.</li>
-                        <li>Überprüfe die Siegel an: <strong>ВРУ</strong>, <span class="key-badge">КАХ</span>, <span class="key-badge">КАД</span>, <span class="key-badge">ОВТ</span>, <span class="key-badge">КПВУ</span>, <span class="key-badge">РЦ-АРС (КСАУП)</span> und <span class="key-badge">УАВА</span>; aktiviere zusätzlich den Schalter <span class="key-badge">ВКФ</span>.</li>
-                        <li>Reverser vorwärts (<span class="key-badge">0</span>), öffne die Türen links mit <span class="key-badge">A</span> zur Sichtkontrolle, ziehe den Schlüssel ab und verriegle den VUD (<span class="key-badge">V</span>).</li>
-                        <li>Wandere nach hinten, aktiviere in jedem Zwischenwagen den Batterie- und Hochspannungsautomaten händisch.</li>
-                        <li>In der Heckkabine: VB und Hochspannungsautomat an, VPR und УПО zuschalten. Reverser vorwärts, öffne die Doppelzug-Hähne mit <span class="key-badge">Shift + L</span>, lade auf 5 Bar und teste die Bremsstufen. NVL-Kippschalter für ARS/ALS zuschalten.</li>
-                        <li>Kehre nach vorne zurück, schalte ARS/ALS ein. Nimm das Hallenkabel (Udočka) auf die 2. Achse des 2. Wagens, trenne die Depotluft und fahre mit gedrückter Sicherheitspedalerie (<span class="key-badge">Shift + Leertaste</span>) bei maximal 5 km/h ins Freie.</li>
+                        <li>In der Frontkabine: <strong>Выключатель батарей</strong> und <strong>Автомат высоковольтных цепей</strong> einschalten. Notlicht und Kabinenlicht an.</li>
+                        <li>Plomben an ВРУ, КАХ, КАД, ОВТ, КПВУ, РЦ-АРС, УАВА prüfen. ВКФ einschalten.</li>
+                        <li>Reverser einstecken (<span class="key-badge">Shift + 0</span>), nach vorn (<span class="key-badge">0</span>). Prüfen, ob "КТ" und Türen-Lampe leuchten.</li>
+                        <li>VUD entsperren (<span class="key-badge">V</span>), linke Türen öffnen (<span class="key-badge">A</span>). Reverser auf Null (<span class="key-badge">9</span>) und abziehen (<span class="key-badge">Shift + 7</span>). VUD wieder sperren.</li>
+                        <li>Durch den Zug gehen, Batterien und Hochspannungsautomaten in jedem Zwischenwagen einschalten.</li>
+                        <li>In Heckkabine: Batterie, Hochspannung, VPR, UPO an. Reverser vorwärts. Hähne öffnen, Vollbremsung, Hahn zu, Bremsventil auf Pos 2.</li>
+                        <li>Für NVL-Züge: ALS und ARS an, Klingel ertönt, Pedal (Leertaste) drücken.</li>
+                        <li>Zurück in die Front: СОСД, ВПР, УПО einschalten. Reverser vorwärts. Auf NVL Zügen ALS/ARS an und Pedal drücken.</li>
+                        <li>Nach außen gehen und Hauptschalter (ГВ) rechts und links an den Kabinen aktivieren. Udočka an 2. Wagen anschließen.</li>
+                        <li><strong>Achtung auf KVL Zügen:</strong> Vor dem Anfahren muss die Sicherheitspedale (<span class="key-badge">Shift + Leertaste</span>) gehalten werden!</li>
                     </ul>
                 `,
                 deadend: `
-                    <h2>Ema-502 Wendevorgang (Wendeanlage)</h2>
-                    <p>Präzisions-Verfahren an Endstationen mit synchronisierter Plattform-Technik.</p>
-                    <ul>
-                        <li>Leite am Wendezeichen der Plattform das komplette Vollbremsungsverfahren ein. Schließe alle Türen mit der Taste <span class="key-badge">V</span>.</li>
-                        <li>Sperre die Luft-Trennhähne mit <span class="key-badge">Shift + L</span> und ziehe den Reversier-Wahlhebel ab.</li>
-                        <li>Da dieser Zug für automatische Stations-Türen konstruiert wurde, halte den Wendevorgang durch die Waggons extrem zügig. In der neuen Front die Hähne öffnen, VPR/УПО booten und das Synchron-Signal abwarten.</li>
-                    </ul>
+                    <div class="error-box">
+                        <h3>Kein Systemprotokoll gefunden</h3>
+                        <p>Das offizielle Wiki enthält für die Baureihe 81-502 keine dokumentierte Prozedur für die Wendeanlage.</p>
+                    </div>
                 `,
                 night: `
-                    <h2>Ema-502 Strecken-Aufrüstung (Nach Nachtabstellung)</h2>
-                    <p>Sicherungsschritte zur Wiederinbetriebnahme der automatisierten KVL/NVL-Einheiten.</p>
+                    <div class="error-box">
+                        <h3>Kein Systemprotokoll gefunden</h3>
+                        <p>Das offizielle Wiki enthält für die Baureihe 81-502 keine dokumentierte Prozedur für die Nachtabstellung.</p>
+                    </div>
+                `,
+                facts: `
+                    <h2>Interessante Fakten (Ema-502)</h2>
                     <ul>
-                        <li>Bordspannung an den Zwischenwagen-Akkus verifizieren. Löse die Handbremsspindeln händisch in allen Fahrgastzellen.</li>
-                        <li><strong>Wichtig nach dem Aufpressen:</strong> Fahre das integrierte BARS/Aero-Sicherungssystem über den Kippschalter hinter der Fahrersitz-Konsole absolut sauber hoch. Digitalsprünge in der KVL-Schaltung erzeugen andernfalls Fehlströme, die das automatische Abfertigungssystem blockieren.</li>
-                        <li>Führe die Rollprobe durch und halte beim Anfahren die Pedalerie (<span class="key-badge">Shift + Leertaste</span>) stramm gedrückt.</li>
+                        <li>Die Ema Waggons sind mit den Waggons der Typen E inkompatibel und können nicht gekuppelt werden.</li>
+                        <li>Entwickelt für die Leningrader Metro, da Typ E veränderte Türabstände hatte und nicht an Stationen des Typs "Horizontaler Lift" (Bahnsteigtüren) passte.</li>
+                        <li>Früher gab es Emx (Heckwaggons), die keine Auto-Fahrsysteme hatten, diese wurden aber später zu Ema umgerüstet.</li>
+                        <li>KVL-Züge (Kirowsko-Wyborgskaja Linie) haben eine spezielle Pedal-Schaltung (Shift+Leertaste), NVL-Züge nicht.</li>
                     </ul>
                 `
             },
             "720": {
                 name: "Baureihe 81-720 (Яуза)",
-                fully: `
-                    <h2>Digitaler Schnellstart (Powered-up state)</h2>
-                    <p>Die Яуза besitzt eine computergestützte Schaltzentrale. Der Kurbel-Kran steuert hierbei kaum noch Bremsdruck.</p>
-                    <ul>
-                        <li>Nimm Platz. Auf dem zentralen 'Витязь'-Display blinkt die Passwortabfrage.</li>
-                        <li>Gib über die Tastaturkombination <span class="key-badge">Alt + Numpad</span> das Standardpasswort <span class="key-badge">1234</span> ein.</li>
-                        <li>Stecke den Reverser ein (<span class="key-badge">Shift + 0</span>) und schalte auf Vorwärts (<span class="key-badge">0</span>).</li>
-                        <li>Navigiere am Bildschirm mit den Pfeiltasten ▲Скор и ▼Токи zum Menü "Номера вагонов", öffне ес mit 'Выб.', kontrolliere die Wagonanzahl und bestätige zwingend mit der Taste <span class="key-badge">Ввод</span> (Enter).</li>
-                        <li>Schalte auf der rechten Hilfskonsole (ПМВ) die Aggregate zu: Kompressor (MK), PSN, Salonbeleuchtung und die Lüftergruppen 1 & 2.</li>
-                        <li>Drücke die Taste <span class="key-badge">G</span>, um den elektronischen Schnellschalter (BV) einzulegen.</li>
-                        <li>Schalte am Bildschirm mit der Taste 'Витязь-2' in den Modus <strong>Двери</strong>, um die Türkreise freizugeben. Beschleunige mit <span class="key-badge">W</span>.</li>
-                    </ul>
-                `,
                 depot: `
-                    <h2>Яуза Depot-Kaltstart (Inbetriebnahme von Null)</h2>
-                    <p>Vollständiges Hochfahr-Protokoll der digitalen Edelstahl-Baureihe.</p>
+                    <h2>Запуск состава (Depot-Start)</h2>
+                    <p>Startvorgang für das digitale Fahrzeug "Yauza".</p>
                     <ul>
-                        <li>Aktiviere den Batterie-Hauptschalter und ausnahmslos alle Automaten auf der <strong>Панели поездной защиты</strong> (Sicherungswand).</li>
-                        <li>Überprüfe die Blei-Siegel am BARS-Blockierer, der Taste <span class="key-badge">КАХ</span>, der Taste <span class="key-badge">АЛС</span> und dem mechanischen <span class="key-badge">Кран РВТБ</span>.</li>
-                        <li>Wandere durch die Waggons, schließe alle Türen und aktiviere in jedem Zwischenwagen den Batterie-Hauptschalter (ВБ) händisch.</li>
-                        <li>Zurück im Sitz: Fahre den Витязь-Computer hoch (Code <span class="key-badge">1234</span> via Alt+Numpad), verwalte das Menü "Номера вагонов" und bestätige den Verband zwingend mit <span class="key-badge">Ввод</span>.</li>
-                        <li>Schalte auf dem Hilfspult ПМВ alle Systeme scharf: MK, PSN, Scheinwerfer, Ventilation und Tor-Türen.</li>
-                        <li><strong>Bremssystem-Test:</strong> Aktiviere mit <span class="key-badge">Num 9</span> den Reservetakt-Bremsturnus (Резервный тормоз) und teste alle 3 elektronischen Ustavka-Stufen. Sorge über das Notventil K-29 für den fahrbereiten Ausgleichsdruck.</li>
-                        <li>Schalte den Schnellschalter mit <span class="key-badge">G</span> scharf, öffne die Türen über das computergestützte 'Витязь-2'-Menü zur Funktionsprobe, hänge die Udočka an den 2. Waggon und rolle im KРУ-Notfahrmodus mit maximal 5 km/h ins Freie.</li>
+                        <li>In der Kopfkabine <strong>Выключатель батарей</strong> einschalten, sowie ALLE Automaten auf dem Panel der Zugsicherung (Панель поездной защиты).</li>
+                        <li>Prüfen der Plomben am BARS-Blockierer, den Kappen für KAH und ALS, sowie dem Hahn РВТБ.</li>
+                        <li>In Zwischenwagen ВБ einschalten. In Heckkabine Manipulationen wiederholen.</li>
+                        <li>In Frontkabine auf dem "Vityaz"-Panel das Passwort <strong>1234</strong> eingeben (via <span class="key-badge">Alt + Numpad</span>).</li>
+                        <li>Reverser einstecken (<span class="key-badge">Shift + 0</span>) und vorwärts legen (<span class="key-badge">0</span>).</li>
+                        <li>Am "Vityaz" in den Tab "Номера вагонов" navigieren (mit ▲Скор / ▼Токи), mit "Выб." öffnen, Wagennummern prüfen und <strong>Ввод</strong> (Enter) drücken!</li>
+                        <li>Knöpfe auf dem Pult testen (Wahrnehmung Bremse, Signal, Türen etc.). Am ПМВ einschalten: MK, PSN, Beleuchtung, Scheinwerfer, Ventilation. "Vityaz" wechselt in Normalmodus.</li>
+                        <li><span class="key-badge">Num 9</span> drücken für Reserve-Bremse, 3 Stufen testen. РВТБ Notbremse prüfen. Hahn K-29 öffnen, КМ auf Pos 2.</li>
+                        <li>Hauptschalter (БВ) mit Taste <span class="key-badge">G</span> einschalten. Ansager testen.</li>
+                        <li>Mit Taste "Витязь-2" in den Türmodus wechseln, Türen testen.</li>
+                        <li>Außen am Zug <strong>ГВ</strong> aktivieren (links und rechts). Hochspannung anfordern und vorsichtig aus dem Depot fahren.</li>
                     </ul>
                 `,
                 deadend: `
-                    <h2>Яуза Kehrgleis-Automatik (Wendeanlage)</h2>
-                    <p>Datensicherungsverfahren beim Richtungswechsel in computergesteuerten Kehrabschnitten.</p>
-                    <ul>
-                        <li>Bringe das Fahrzeug im Wendeabschnitt zum Stehen. Schalte das Reservetank-Ventil auf Sperrung, um den Bremsdruck im unbemannten Zustand zu sichern.</li>
-                        <li>Fahre den Richtungsschalter auf Null (<span class="key-badge">9</span>) und ziehe den Schlüssel ab. Keine Sorge: Der Витязь-Bordcomputer speichert deine Routen- und Zugverbandsdaten automatisch ab.</li>
-                        <li>Wandere nach vorne. Melde dich in der neuen Frontkabine einfach erneut mit dem Code <span class="key-badge">1234</span> an. Das Digitalsystem rufe die bestehende Wagondaten-Matrix sofort ab; du musst den Zug nicht neu konfigurieren. Hähne auf und Ausfahrt anfordern.</li>
-                    </ul>
+                    <div class="error-box">
+                        <h3>Kein Systemprotokoll gefunden</h3>
+                        <p>Das offizielle Wiki enthält für die Baureihe 81-720 keine dokumentierte Prozedur für die Wendeanlage.</p>
+                    </div>
                 `,
                 night: `
-                    <h2>Яуза Nachtabstellung absichern (Parkmodus)</h2>
-                    <p>Elektronisches Schutzverfahren beim Abstellen des Zuges im Tunnelsystem.</p>
-                    <ul>
-                        <li>Bringe das Fahrzeug exakt an den Begrenzungsbalken. Aktiviere den permanenten Park-Sicherungsmodus direkt auf dem Touch-Bedienfeld des Computers.</li>
-                        <li>Schalte die Lüftergruppen, den PSN-Umformer, Scheinwerfer und alle Hilfsaggregate ab. Schließe alle Fenster und verriegle den Evakuierungstrap an der rechten Cockpitseite händisch.</li>
-                        <li>Deaktiviere die Batterien; die Bordelektronik speichert alle aktuellen Systemzustände und Fehlermeldungen im permanenten Diagnosespeicher (<strong>Журнал ТУ-152 М</strong>) für die Folgeschicht. Am nächsten Morgen: VB an, Computer booten, Diagnose prüfen und Parkbremse pneumatisch freigeben.</li>
-                    </ul>
+                    <div class="error-box">
+                        <h3>Kein Systemprotokoll gefunden</h3>
+                        <p>Das offizielle Wiki enthält für die Baureihe 81-720 keine dokumentierte Prozedur für die Nachtabstellung.</p>
+                    </div>
+                `,
+                facts: `
+                    <h2>Fakten zur Yauza (81-720)</h2>
+                    <p>Karosserie aus rostfreiem Stahl. Die Yauza wurde ab 1987 als Zug der neuen Generation konzipiert. Der 81-740 "Rusich" ist eine direkte Weiterentwicklung der Yauza.</p>
+                    <p>Der Führerstand ist asymmetrisch nach links versetzt, um rechts eine Notfall-Treppe in den Tunnel zu ermöglichen. Das Kurbel-Ventil steuert den Zug fast gar nicht mehr, alles läuft über das "Vityaz" Digitalsystem.</p>
                 `
             },
             "722": {
-                name: "Baureihe 81-722 \"Юбилейный\"",
-                fully: `
-                    <h2>Asynchroner Fahrbetrieb (Powered-up state)</h2>
-                    <p>Der Юбилейный nutzt ein hochmodernes, prozentual gesteuertes Schub- und Bremssystem via Zugnetzwerk.</p>
-                    <ul>
-                        <li>Setz dich auf den Fahrersitz. Melde dich am MFDU-Touchscreen über das Menü 'Маршрут/Машинист' an und drücke den Button 'Aktivieren' (leuchtet intensiv blau).</li>
-                        <li>Bestätige mit 'OK' und kehre mit 'Обратно' zum Hauptbildschirm zurück. Richte deine Route, Linie und Endstationen über die Funktionstasten <span class="key-badge">F1</span> und <span class="key-badge">F2</span> ein.</li>
-                        <li>Schalte den Reverser-Wahlhebel auf Vorwärts (<span class="key-badge">0</span>).</li>
-                        <li><strong>BARS-FEHLER BEHEBEN (WICHTIG):</strong> Falls im Display die rote Warnung 'Экстренное торможение БАРС' blinkt und Luft entweicht, schalte den Hebel kurz auf Null (<span class="key-badge">9</span>), schalte das ARS am Kippschalter einmal mit Aussetzzeit aus und wieder ein, und wähle erneut Vorwärts (<span class="key-badge">0</span>).</li>
-                        <li><strong>WICHTIGE FAHRBLOCKADE:</strong> Halte beim Anfahren zwingend die Sicherheits-Pedalerie (<span class="key-badge">Shift + Leertaste</span>) gedrückt, sonst verweigert der asynchrone Antrieb jegliche Traktion!</li>
-                        <li>Schubregelung: Der Hebel rastet digital. <span class="key-badge">W</span> kurz tippen für 20% Mindestschub (Raste X), halten für kontinuierliche Steigerung bis 100% (Raste +X). Bremsen mit <span class="key-badge">S</span>: Raste 'T' liefert 1,0 Bar Bremszylinderdruck; Raste '+T' liefert kraftvolle 1,7 Bar für den Präzisions-Halt am Stationsbalken.</li>
-                    </ul>
-                `,
+                name: "Baureihe 81-722 (Юбилейный)",
                 depot: `
-                    <h2>Юбилейный Depot-Aufrüstung (Kaltstart aus der Halle)</h2>
-                    <p>Inbetriebnahme-Verfahren des modernen Drehstrom-Zugverbandes.</p>
+                    <h2>Запуск (Depot-Start)</h2>
+                    <p>Inbetriebnahme des Jubileyniy aus dem Depot-Zustand.</p>
                     <ul>
-                        <li>Gehe in die Kabine und halte an der Rückwand den Taster <strong>Включение БС</strong> für 3-5 Sekunden gedrückt, bis die Systemrelais klacken und die Bildschirme booten.</li>
-                        <li>Schalte alle Sicherungsautomaten hoch. Aktiviere das Salonlicht und stelle die Salonventilation auf die Position <strong>АВТ</strong>.</li>
-                        <li>Prüfe die Blei-Plomben an: ВРУ, der Not-Pedalüberbrückung, den BARS-Modusschaltern, dem RВТБ und den Tokoprijemniki. Schalte ARS & ALS am Pult ein und quittiere das Signal über das Pedal.</li>
-                        <li>Melde dich am Touchscreen an, aktiviere die Kabine (Blau-Leuchten), kalibriere das БМЦИК-01 Display für die Streckenfrequenzen und verlasse die Halle mit gedrücktem Pedal (<span class="key-badge">Shift + Leertaste</span>) bei exakt 20% Leistung.</li>
+                        <li>Sicherstellen, dass KEIN 825V anliegt.</li>
+                        <li>In Frontkabine: Taste <strong>Включение БС</strong> auf der Rückwand 3-5 Sekunden gedrückt halten, bis Strom anliegt. Automaten einschalten.</li>
+                        <li>Salonbeleuchtung an, Ventilation auf "АВТ". СОСД einschalten (nur .3 Züge).</li>
+                        <li>Plomben prüfen: ВРУ, Bewegung ohne Tür/Pedalkontrolle, ARS, RVTB.</li>
+                        <li>Auf Fahrpult einschalten: ARS (Klingel mit ПБ ausmachen), ALS, Scheinwerfer, Kompressoren auf АВТ.</li>
+                        <li>Auf dem MFDU-Touchdisplay: "№ маршрута, станции, машиниста" drücken. "Активировать кабину" drücken (wird blau). OK drücken.</li>
+                        <li>Auf dem БМЦИК-01 Display: Route mit <span class="key-badge">F1</span> einstellen. Richtung mit "ПУТЬ".</li>
+                        <li>Reverser auf Vorwärts (<span class="key-badge">0</span>).</li>
+                        <li><strong>WENN BARS-NOTBREMSE BLINKT:</strong> Reverser auf 0 (<span class="key-badge">9</span>), ARS ausmachen, Klingel abwehren, ARS wieder an, Reverser auf Vorwärts.</li>
+                        <li>Sicherheitspedale gedrückt halten! Ustavka auf 20% stellen und mit max 5 km/h bis zum STOP-Schild fahren.</li>
                     </ul>
                 `,
                 deadend: `
-                    <h2>Юбилейный Kehrschleifen-Wende (Richtungswechsel)</h2>
-                    <p>Digitaler Kabinenwechsel ohne Datenverlust im schienengebundenen Netzwerk.</p>
-                    <ul>
-                        <li>Bremse den Zug mit der Bremsstufe 'T' am Haltebalken ein. Schalte die Kabinenaktivierung am Touchscreen ab (Blau-Leuchten erlischt).</li>
-                        <li>Schalte den Fahrtrichtungsschalter auf Neutral und wandere durch die klimatisierten Gänge nach vorne. Das digitale Netzwerk überträgt deine Routenkonfiguration automatisch an das neue Spitzengehäuse. Login ausführen, Kabine aktivieren, Saft prüfen und zurück zum Hauptgleis beschleunigen.</li>
-                    </ul>
+                    <div class="error-box">
+                        <h3>Kein Systemprotokoll gefunden</h3>
+                        <p>Das offizielle Wiki enthält für die Baureihe 81-722 keine dokumentierte Prozedur für die Wendeanlage.</p>
+                    </div>
                 `,
                 night: `
-                    <h2>Юбилейный Reaktivierung nach Nachtruhe (System-Boot)</h2>
-                    <p>Sicherungsschritte beim Hochfahren der asynchronen Motor-Steuerung auf freier Strecke.</p>
+                    <div class="error-box">
+                        <h3>Kein Systemprotokoll gefunden</h3>
+                        <p>Das offizielle Wiki enthält für die Baureihe 81-722 keine dokumentierte Prozedur für die Nachtabstellung.</p>
+                    </div>
+                `,
+                facts: `
+                    <h2>Der moderne Fahrhebel (81-722)</h2>
+                    <div class="info-warning">Dieser Zug nutzt eine prozentuale Schubsteuerung (0-100% in 10% Schritten).</div>
                     <ul>
-                        <li>Halte nach dem Einschalten des Bordnetzes via <span class="key-badge">Включение БС</span> strengen Fokus auf die integrierte MFDU-Systemdiagnose.</li>
-                        <li><strong>Wichtig bei Fehlströmen:</strong> Sollten die Computer Fehlfunktionen in den asynchronen Wechselrichtern (<strong>Тяговый привод</strong>) anzeigen, leite über das Touch-Menü einen vollständigen System-Reset ein, bevor du die mechanischen Parkbremsen über die pneumatische Lösetaste freigibst.</li>
-                        <li>Die Bordelektronik speichert alle Diagnosedaten im permanenten Speicherlog (Журнал ТУ-152 М), sodass du Fehlerprotokolle der Nachtschicht direkt einsehen kannst.</li>
+                        <li><strong>Pos "X":</strong> Feste Position. Der Zug wendet dauerhaft mindestens 20% Schub an.</li>
+                        <li><strong>Pos "+X":</strong> Unfeste Position (gefedert). Der Schub steigt kontinuierlich bis 100% an, solange der Hebel gehalten wird. Lässt man ihn los, fällt er auf "X" zurück und der aktuelle Schub-Prozentsatz wird eingefroren.</li>
+                        <li><strong>Pos "T" und "+T":</strong> Gleiches Prinzip für die Bremse. "T" fixiert die Bremskraft bei mind. 20% (bzw. 1 atm Bremszylinderdruck). "+T" steigert die Bremskraft stufenlos bis 100% (bzw. 1.7 atm Druck im Zylinder).</li>
+                        <li><strong>Pos "Э":</strong> Notbremse. Annulierung aller Schubvorgaben, volle Zwangsbremsung.</li>
                     </ul>
                 `
             }
         };
 
-        function getParam(param) {
-            return urlParams.get(param);
-        }
+        function getParam(param) { return urlParams.get(param); }
 
-        let currentTrain = getParam("train") || "717";
-        let currentState = getParam("state") || "fully";
+        let currentTrain = getParam("train") || "710";
+        let currentState = getParam("state") || "depot";
 
-        if (!wikiData[currentTrain]) currentTrain = "717";
-        if (!wikiData[currentTrain][currentState]) currentState = "fully";
+        if (!wikiData[currentTrain]) currentTrain = "710";
+        if (!wikiData[currentTrain][currentState]) currentState = "depot";
 
         document.getElementById("current-train-name").innerText = wikiData[currentTrain].name;
         document.getElementById("wiki-body").innerHTML = wikiData[currentTrain][currentState];
@@ -463,10 +473,10 @@
         document.getElementById(`link-${currentTrain}`).querySelector('button').classList.add('active');
         document.getElementById(`tab-${currentState}`).querySelector('button').classList.add('active');
 
-        document.getElementById("tab-fully").href = `?train=${currentTrain}&state=fully`;
         document.getElementById("tab-depot").href = `?train=${currentTrain}&state=depot`;
         document.getElementById("tab-deadend").href = `?train=${currentTrain}&state=deadend`;
         document.getElementById("tab-night").href = `?train=${currentTrain}&state=night`;
+        document.getElementById("tab-facts").href = `?train=${currentTrain}&state=facts`;
 
         document.querySelectorAll('.nav-link').forEach(link => {
             const tId = link.id.replace('link-', '');
