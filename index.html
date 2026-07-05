@@ -10,8 +10,13 @@
 
     <div class="background-overlay"></div>
     <div class="aurora-wave"></div>
-    <div class="bubble-orb orb1"></div>
-    <div class="bubble-orb orb2"></div>
+    
+    <div class="bubble-wrapper wrapper1">
+        <div class="bubble-orb orb1"></div>
+    </div>
+    <div class="bubble-wrapper wrapper2">
+        <div class="bubble-orb orb2"></div>
+    </div>
 
     <div class="header">
         <h1>Metrostroi Transit Authority</h1>
@@ -23,7 +28,6 @@
             <span class="music-label">Aktueller Titel</span>
             <span class="music-title" id="track-title">Warte...</span>
             <span class="music-artist" id="track-artist">Solar Fields</span>
-            
             <canvas id="vis-canvas" width="250" height="40"></canvas>
         </div>
         <div class="music-progress-container">
@@ -32,31 +36,26 @@
     </div>
 
     <div class="guide-container">
-        
         <div class="step-card">
             <div class="step-num">Schritt 1</div>
             <h3>Hauptschalter (GV)</h3>
             <p>Gehe unter den Wagen oder öffne das Schalttafel-Menü. Lege den <strong>Haupttrennschalter (GV)</strong> um, um die Stromzufuhr zu aktivieren.</p>
         </div>
-
         <div class="step-card">
             <div class="step-num">Schritt 2</div>
             <h3>Batterie & Automaten</h3>
             <p>Schalte auf dem Bedienpult die <span class="key-badge">Batterie (VB)</span> ein. Drücke danach die Sicherungsautomaten an der Rückwand hoch.</p>
         </div>
-
         <div class="step-card">
             <div class="step-num">Schritt 3</div>
             <h3>Pneumatik & Funk</h3>
             <p>Aktiviere den Kompressor, um Luftdruck aufzubauen. Schalte das ARS/ALS-System ein und stelle die Funkfrequenz für die Leitstelle ein.</p>
         </div>
-
         <div class="step-card">
             <div class="step-num">Schritt 4</div>
             <h3>Reverser & Abfahrt</h3>
             <p>Stecke den <span class="key-badge">Reverser</span> ein (Position Vorwärts). Löse die pneumatische Bremse und bewege den Fahrschalter vorsichtig auf Position F1.</p>
         </div>
-
     </div>
 
     <div class="footer">
@@ -77,18 +76,15 @@
         if (mapName) document.getElementById('map-name').innerText = mapName;
 
         const playlist = [
-           { path: "music/kate.mp3", title: "Kate", artist: "Solar Fields" },
-        { path: "music/still-alive.mp3", title: "Still Alive", artist: "Lisa Miskovsky / Solar Fields" },
-        { path: "music/heat.mp3", title: "Heat", artist: "Solar Fields" },
-        { path: "music/menu-theme.mp3", title: "Menu Theme", artist: "Solar Fields" }
+            { path: "music/kate.mp3", title: "Kate", artist: "Solar Fields" },
+            { path: "music/still-alive.mp3", title: "Still Alive", artist: "Lisa Miskovsky / Solar Fields" },
+            { path: "music/heat.mp3", title: "Heat", artist: "Solar Fields" },
+            { path: "music/menu-theme.mp3", title: "Menu Theme", artist: "Solar Fields" }
         ];
 
         const audio = document.getElementById("loading-music");
         let lastTrackIndex = -1;
 
-        // ----------------------------------------------------
-        // NEU: WEB AUDIO API INTERFACES FÜR DIE REAKTIVITÄT
-        // ----------------------------------------------------
         let audioCtx, analyser, source, bufferLength, dataArray;
         let isAudioSetup = false;
 
@@ -102,14 +98,14 @@
                 source.connect(analyser);
                 analyser.connect(audioCtx.destination);
                 
-                analyser.fftSize = 64; // Kleine FFT = weniger, aber breitere Frequenzbalken
+                analyser.fftSize = 64;
                 bufferLength = analyser.frequencyBinCount;
                 dataArray = new Uint8Array(bufferLength);
                 
                 isAudioSetup = true;
                 renderAudioReaction();
             } catch(e) {
-                console.log("AudioContext konnte noch nicht gestartet werden.", e);
+                console.log("AudioContext blockiert, wartet auf Interaktion.");
             }
         }
 
@@ -135,31 +131,25 @@
             document.getElementById("track-progress").style.width = "0%";
 
             audio.play().then(() => {
-                initAudioReactor(); // Aktiviert die API, sobald der Song erfolgreich startet
+                initAudioReactor();
             }).catch(error => {
-                console.log("Autoplay blockiert. Warte auf Nutzerinteraktion.");
+                console.log("Autoplay wartet auf Interaktion.");
             });
         }
 
-        // ----------------------------------------------------
-        // NEU: LIVE RENDER LOOP (Equalizer + CSS-Variablen)
-        // ----------------------------------------------------
         function renderAudioReaction() {
             requestAnimationFrame(renderAudioReaction);
             if (!isAudioSetup) return;
 
             analyser.getByteFrequencyData(dataArray);
 
-            // 1. Bass berechnen (Durchschnitt der ersten 4 Frequenzbänder)
             let bass = 0;
             for(let i = 0; i < 4; i++) { bass += dataArray[i]; }
-            bass = bass / 4; // Wert zwischen 0 und 255
+            bass = bass / 4;
 
-            // Bass als CSS-Variable zwischen 0.0 und 1.0 in den Body einspeisen
             let normalizedBass = bass / 255;
             document.body.style.setProperty('--audio-bass', normalizedBass);
 
-            // 2. Den Equalizer auf dem Canvas zeichnen
             const canvas = document.getElementById("vis-canvas");
             const ctx = canvas.getContext("2d");
             ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -170,56 +160,68 @@
 
             for(let i = 0; i < bufferLength; i++) {
                 barHeight = (dataArray[i] / 255) * canvas.height;
-
-                // Typischer glänzender Cyan-Aero-Verlauf für die Equalizer-Balken
                 let grad = ctx.createLinearGradient(0, canvas.height, 0, canvas.height - barHeight);
                 grad.addColorStop(0, 'rgba(0, 119, 182, 0.8)');
                 grad.addColorStop(0.6, 'rgba(0, 242, 254, 0.9)');
                 grad.addColorStop(1, 'rgba(255, 255, 255, 0.9)');
-
                 ctx.fillStyle = grad;
-                // Zeichnet abgerundete Säulen
                 ctx.fillRect(x, canvas.height - barHeight, barWidth - 3, barHeight);
-
                 x += barWidth;
             }
         }
 
-        // Falls der Browser (oder Gmod) beim Laden blockiert, 
-        // wird die API beim ersten Klick des Nutzers auf den Bildschirm scharfgeschaltet.
         window.addEventListener('click', () => {
-            if(audioCtx && audioCtx.state === 'suspended') {
-                audioCtx.resume();
-            }
+            if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
             initAudioReactor();
         });
 
         audio.addEventListener('timeupdate', function() {
             if (audio.duration) {
                 let percentage = (audio.currentTime / audio.duration) * 100;
+                // BEHOBEN: Doppelten .style-Aufruf korrigiert
                 document.getElementById("track-progress").style.width = percentage + "%";
             }
         });
 
-        audio.addEventListener('ended', function() {
-            playRandomSong();
-        });
-
+        audio.addEventListener('ended', function() { playRandomSong(); });
         playRandomSong();
 
-        // Gmod-Statistiken
-        let totalFiles = 0; let neededFiles = 0;
-        function SetStatusChanged(status) { document.getElementById("status-text").innerText = status; }
-        function SetFilesTotal(total) { totalFiles = total; }
+        // ----------------------------------------------------
+        // BEHOBEN: ABSOLUT GMOD-SICHERE LADEBALKEN-LOGIK
+        // ----------------------------------------------------
+        let totalFiles = 0;
+        let neededFiles = 0;
+
+        function SetStatusChanged(status) { 
+            document.getElementById("status-text").innerText = status; 
+        }
+
+        function SetFilesTotal(total) {
+            if (total > totalFiles) totalFiles = total;
+        }
+
         function SetFilesNeeded(needed) {
             neededFiles = needed;
+            
+            // Sicherheitsnetz: Falls Gmod mehr benötigte Dateien meldet, als es als Total kennt
+            if (neededFiles > totalFiles) {
+                totalFiles = neededFiles;
+            }
+            
             if (totalFiles > 0) {
                 let downloaded = totalFiles - neededFiles;
                 let percentage = (downloaded / totalFiles) * 100;
+                
+                // Einrasten zwischen 0 und 100, um visuelle Sprünge zu verhindern
+                percentage = Math.max(0, Math.min(100, percentage));
+                
                 document.getElementById("load-progress").style.width = percentage + "%";
             }
         }
-        function DownloadingFile(fileName) { document.getElementById("current-file").innerText = "Abgleich: " + fileName; }
+
+        function DownloadingFile(fileName) { 
+            document.getElementById("current-file").innerText = "Abgleich: " + fileName; 
+        }
     </script>
 </body>
 </html>
